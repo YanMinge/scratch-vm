@@ -404,6 +404,242 @@ const MotionStepMenu = {
 };
 
 /**
+ * Enum for motor angle.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const MotionAngleMenu = { 
+    angle30: '30',
+    angle36: '36',
+    angle45: '45',
+    angle60: '60',
+    angle72: '72',
+    angle90: '90',
+    angle108: '108',
+    angle120: '120',
+    angle135: '135',
+    angle144: '144',
+    angle150: '150',
+    angle180: '180'
+};
+
+/**
+ * Enum for motor wheel.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const MotionWheelMenu = {
+    both: 'both',
+    left: 'left',
+    right: 'right'
+};
+
+/**
+ * Enum for motor trend.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const MotionTrendMenu = {
+    forward: 'forward',
+    backward: 'backward'
+};
+
+/**
+ * Enum for motor order.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const MotionOrderMenu = {
+    order1: '1st',
+    order2: '2nd'
+};
+
+/**
+ * Enum for motor side.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const LooksSideMenu = {
+    left: 'left',
+    right: 'right'
+};
+
+/**
+ * Enum for motor color.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const LooksColorMenu = {
+    white: 'white',
+    red: 'red',
+    yellow: 'yellow',
+    green: 'green',
+    blue: 'blue',
+    purple: 'purple',
+    off: 'off',
+};
+
+/**
+ * Enum for motor light.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const LooksLightMenu = {
+    light1: '1',
+    light2: '2',
+    light3: '3',
+    light4: '4',
+    light5: '5',
+    light6: '6',
+};
+
+/**
+ * Enum for motor site.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const LooksSiteMenu = {
+    previous: 'previous'
+};
+
+/**
+ * Enum for motor light effect.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const LooksLightEffectMenu = {
+    wave: 'wave',
+    rainbow: 'rainbow',
+    meteor: 'meteor',
+    firefly: 'firefly',
+    brush: 'brush',
+    breath: 'breath',
+};
+
+/**
+ * Enum for motor sound beat.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SoundBeatMenu = {
+    half: '1/2',
+    quarter: '1/4'
+};
+
+/**
+ * Enum for motor sound tone.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SoundToneMenu = {
+    do: 'do',
+    re: 're',
+    mi: 'mi'
+};
+
+/**
+ * Enum for motor sound song.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SoundSongMenu = {
+    hello: 'hello'
+};
+
+/**
+ * Enum for motor sound melody.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SoundMelodyMenu = {
+    hello: 'hello'
+};
+
+/**
+ * Enum for motor sensing identifier.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SensingIdentifierMenu = {
+    light: 'light'
+};
+
+/**
+ * Enum for motor sensing button.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SensingButtonMenu = {
+    run: '执行'
+};
+
+/**
+ * Enum for motor sensing event.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SensingEventMenu = {
+    shake: '摇晃'
+};
+
+/**
+ * Enum for motor sensing color.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SensingColorMenu = {
+    red: 'red'
+};
+
+/**
+ * Enum for motor sensing data.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SensingDataMenu = {
+    one: 'one'
+};
+
+/**
+ * Enum for motor sensing axis.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SensingAxisMenu = {
+    x: 'x',
+    y: 'y'
+};
+
+/**
+ * Enum for motor sensing perspect.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SensingPerspectMenu = {
+    pitch: '俯仰角'
+};
+
+/**
  * Scratch 3.0 blocks to interact with a MatataBot peripheral.
  */
 class Scratch3MatataBotBlocks {
@@ -422,6 +658,9 @@ class Scratch3MatataBotBlocks {
         return 'matatabot';
     }
 
+    /**
+     * @return {array} - text and values for each step menu element
+     */
     get MOTION_STEP_MENU () {
         return [
             {
@@ -484,6 +723,614 @@ class Scratch3MatataBotBlocks {
     }
 
     /**
+     * @return {array} - text and values for each angle menu element
+     */
+    get MOTION_ANGLE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree30',
+                    default: '30',
+                    description: 'label for matatabot turn 30 degree'
+                }),
+                value: MotionAngleMenu.angle30
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree36',
+                    default: '36',
+                    description: 'label for matatabot turn 36 degree'
+                }),
+                value: MotionAngleMenu.angle36
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree45',
+                    default: '45',
+                    description: 'label for matatabot turn 45 degree'
+                }),
+                value: MotionAngleMenu.angle45
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree60',
+                    default: '60',
+                    description: 'label for matatabot turn 60 degree'
+                }),
+                value: MotionAngleMenu.angle60
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree72',
+                    default: '72',
+                    description: 'label for matatabot turn 72 degree'
+                }),
+                value: MotionAngleMenu.angle72
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree90',
+                    default: '90',
+                    description: 'label for matatabot turn 90 degree'
+                }),
+                value: MotionAngleMenu.angle90
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree108',
+                    default: '108',
+                    description: 'label for matatabot turn 108 degree'
+                }),
+                value: MotionAngleMenu.angle108
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree120',
+                    default: '120',
+                    description: 'label for matatabot turn 120 degree'
+                }),
+                value: MotionAngleMenu.angle120
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree135',
+                    default: '135',
+                    description: 'label for matatabot turn 135 degree'
+                }),
+                value: MotionAngleMenu.angle135
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree144',
+                    default: '144',
+                    description: 'label for matatabot turn 144 degree'
+                }),
+                value: MotionAngleMenu.angle144
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree150',
+                    default: '150',
+                    description: 'label for matatabot turn 150 degree'
+                }),
+                value: MotionAngleMenu.angle150
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionAngleMenu.degree180',
+                    default: '180',
+                    description: 'label for matatabot turn 180 degree'
+                }),
+                value: MotionAngleMenu.angle180
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each wheel menu element
+     */
+    get MOTION_WHEEL_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionWheelMenu.both',
+                    default: 'two wheels',
+                    description: 'label for matatabot both wheels'
+                }),
+                value: MotionWheelMenu.both
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionWheelMenu.left',
+                    default: 'left wheel',
+                    description: 'label for matatabot left wheel'
+                }),
+                value: MotionWheelMenu.left
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionWheelMenu.right',
+                    default: 'right wheel',
+                    description: 'label for matatabot right wheel'
+                }),
+                value: MotionWheelMenu.right
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each trend menu element
+     */
+    get MOTION_TREND_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionTrendMenu.forward',
+                    default: 'forward',
+                    description: 'label for matatabot trend forward'
+                }),
+                value: MotionTrendMenu.forward
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionTrendMenu.backward',
+                    default: 'backward',
+                    description: 'label for matatabot trend backward'
+                }),
+                value: MotionTrendMenu.backward
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each order menu element
+     */
+    get MOTION_ORDER_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionOrderMenu.order1',
+                    default: '1st',
+                    description: 'label for matatabot order first'
+                }),
+                value: MotionOrderMenu.order1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionOrderMenu.order2',
+                    default: '2nd',
+                    description: 'label for matatabot order second'
+                }),
+                value: MotionOrderMenu.order2
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each side menu element
+     */
+    get LOOKS_SIDE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksSideMenu.left',
+                    default: 'left',
+                    description: 'label for matatabot side left'
+                }),
+                value: LooksSideMenu.left
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.motionOrderMenu.right',
+                    default: 'right',
+                    description: 'label for matatabot side right'
+                }),
+                value: LooksSideMenu.right
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each color menu element
+     */
+    get LOOKS_COLOR_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksColorMenu.white',
+                    default: 'white',
+                    description: 'label for matatabot color white'
+                }),
+                value: LooksColorMenu.white
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksColorMenu.red',
+                    default: 'red',
+                    description: 'label for matatabot color red'
+                }),
+                value: LooksColorMenu.red
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksColorMenu.yellow',
+                    default: 'yellow',
+                    description: 'label for matatabot color yellow'
+                }),
+                value: LooksColorMenu.yellow
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksColorMenu.green',
+                    default: 'green',
+                    description: 'label for matatabot color green'
+                }),
+                value: LooksColorMenu.green
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksColorMenu.blue',
+                    default: 'blue',
+                    description: 'label for matatabot color blue'
+                }),
+                value: LooksColorMenu.blue
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksColorMenu.purple',
+                    default: 'purple',
+                    description: 'label for matatabot color purple'
+                }),
+                value: LooksColorMenu.purple
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksColorMenu.off',
+                    default: 'off',
+                    description: 'label for matatabot color off'
+                }),
+                value: LooksColorMenu.off
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each light menu element
+     */
+    get LOOKS_LIGHT_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightMenu.Light1',
+                    default: '1',
+                    description: 'label for matatabot light Light1'
+                }),
+                value: LooksLightMenu.light1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightMenu.Light2',
+                    default: '2',
+                    description: 'label for matatabot light Light2'
+                }),
+                value: LooksLightMenu.light2
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightMenu.Light3',
+                    default: '3',
+                    description: 'label for matatabot light Light3'
+                }),
+                value: LooksLightMenu.light3
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightMenu.Light4',
+                    default: '4',
+                    description: 'label for matatabot light Light4'
+                }),
+                value: LooksLightMenu.light4
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightMenu.Light5',
+                    default: '5',
+                    description: 'label for matatabot light Light5'
+                }),
+                value: LooksLightMenu.light5
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightMenu.Light6',
+                    default: '6',
+                    description: 'label for matatabot light Light6'
+                }),
+                value: LooksLightMenu.light6
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each site menu element
+     */
+    get LOOKS_SITE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksSiteMenu.previous',
+                    default: 'previous',
+                    description: 'label for matatabot site previous'
+                }),
+                value: LooksSiteMenu.previous
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each light effect menu element
+     */
+    get LOOKS_LIGHT_EFFECT_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightEffectMenu.wave',
+                    default: 'wave',
+                    description: 'label for matatabot light effect wave'
+                }),
+                value: LooksLightEffectMenu.wave
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightEffectMenu.rainbow',
+                    default: 'rainbow',
+                    description: 'label for matatabot light effect rainbow'
+                }),
+                value: LooksLightEffectMenu.rainbow
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightEffectMenu.meteor',
+                    default: 'meteor',
+                    description: 'label for matatabot light effect meteor'
+                }),
+                value: LooksLightEffectMenu.meteor
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightEffectMenu.firefly',
+                    default: 'firefly',
+                    description: 'label for matatabot light effect firefly'
+                }),
+                value: LooksLightEffectMenu.firefly
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightEffectMenu.brush',
+                    default: 'brush',
+                    description: 'label for matatabot light effect brush'
+                }),
+                value: LooksLightEffectMenu.brush
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksLightEffectMenu.breath',
+                    default: 'breath',
+                    description: 'label for matatabot light effect breath'
+                }),
+                value: LooksLightEffectMenu.breath
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each beat menu element
+     */
+    get SOUND_BEAT_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.half',
+                    default: '1/2',
+                    description: 'label for matatabot tone half'
+                }),
+                value: SoundBeatMenu.half
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.quarter',
+                    default: '1/4',
+                    description: 'label for matatabot tone quarter'
+                }),
+                value: SoundBeatMenu.quarter
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each tone menu element
+     */
+    get SOUND_TONE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.do',
+                    default: 'do',
+                    description: 'label for matatabot beat do'
+                }),
+                value: SoundToneMenu.do
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.re',
+                    default: 're',
+                    description: 'label for matatabot beat re'
+                }),
+                value: SoundToneMenu.re
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.mi',
+                    default: 'mi',
+                    description: 'label for matatabot beat mi'
+                }),
+                value: SoundToneMenu.mi
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each song menu element
+     */
+    get SOUND_SONG_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundSong.hello',
+                    default: 'hello',
+                    description: 'label for matatabot song hello'
+                }),
+                value: SoundSongMenu.hello
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each melody menu element
+     */
+    get SOUND_MELODY_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundMelody.hello',
+                    default: 'hello',
+                    description: 'label for matatabot melody hello'
+                }),
+                value: SoundMelodyMenu.hello
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each identifier menu element
+     */
+    get SENSING_IDENTIFIER_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.sensingIdentifier.light',
+                    default: 'light',
+                    description: 'label for matatabot identifier light'
+                }),
+                value: SensingIdentifierMenu.light
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each button menu element
+     */
+    get SENSING_BUTTON_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.sensingButton.run',
+                    default: '执行',
+                    description: 'label for matatabot button run'
+                }),
+                value: SensingButtonMenu.run
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each event menu element
+     */
+    get SENSING_EVENT_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.sensingEvent.shake',
+                    default: '摇晃',
+                    description: 'label for matatabot event shake'
+                }),
+                value: SensingEventMenu.shake
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each color menu element
+     */
+    get SENSING_COLOR_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.sensingColor.red',
+                    default: 'red',
+                    description: 'label for matatabot color red'
+                }),
+                value: SensingColorMenu.red
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each data menu element
+     */
+    get SENSING_DATA_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.sensingData.one',
+                    default: 'one',
+                    description: 'label for matatabot color one'
+                }),
+                value: SensingDataMenu.one
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each axis menu element
+     */
+    get SENSING_AXIS_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.sensingAxis.x',
+                    default: 'x',
+                    description: 'label for matatabot axis x'
+                }),
+                value: SensingAxisMenu.x
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.sensingAxis.y',
+                    default: 'y',
+                    description: 'label for matatabot axis y'
+                }),
+                value: SensingAxisMenu.y
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each perspect menu element
+     */
+    get SENSING_PERSPECT_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.sensingPerspect.pitch',
+                    default: '俯仰视',
+                    description: 'label for matatabot perspect pitch'
+                }),
+                value: SensingPerspectMenu.pitch
+            }
+        ];
+    }
+
+    /**
      * Construct a set of MatataBot blocks.
      * @param {Runtime} runtime - the Scratch 3.0 runtime.
      */
@@ -512,7 +1359,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'motionForwardStep',
                     text: formatMessage({
                         id: 'matatabot.motionForwardStep',
-                        default: 'move [STEP] forward',
+                        default: 'MatataBot Go [STEP] forward',
                         description: 'Move forward according to the set number of steps'
                     }),
                     blockType: BlockType.COMMAND,
@@ -527,8 +1374,8 @@ class Scratch3MatataBotBlocks {
                 {
                     opcode: 'motionBackwardStep',
                     text: formatMessage({
-                        id: 'matatabot.clearDisplay',
-                        default: 'move [STEP] backward',
+                        id: 'matatabot.motionBackwardStep',
+                        default: 'MatataBot Go [STEP] backward',
                         description: 'Move backward according to the set number of steps'
                     }),
                     blockType: BlockType.COMMAND,
@@ -540,12 +1387,654 @@ class Scratch3MatataBotBlocks {
                         }
                     }
                 },
+                {
+                    opcode: 'motionTurnLeftAngle',
+                    text: formatMessage({
+                        id: 'matatabot.motionTurnLeftAngle',
+                        default: 'MatataBot Turn [ANGLE] left',
+                        description: 'Turn left according to the set number of angle'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        ANGLE: {
+                            type: ArgumentType.STRING,
+                            menu: 'motionAngle',
+                            defaultValue: MotionAngleMenu.angle90
+                        }
+                    }
+                },
+                {
+                    opcode: 'motionTurnRightAngle',
+                    text: formatMessage({
+                        id: 'matatabot.motionTurnRightAngle',
+                        default: 'MatataBot Turn [ANGLE] right',
+                        description: 'Turn right according to the set number of angle'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        ANGLE: {
+                            type: ArgumentType.STRING,
+                            menu: 'motionAngle',
+                            defaultValue: MotionAngleMenu.angle90
+                        }
+                    }
+                },
+                {
+                    opcode: 'motionStopMoving',
+                    text: formatMessage({
+                        id: 'matatabot.motionStopMoving',
+                        default: 'MatataBot [WHEEL] stop moving',
+                        description: 'Stop moving'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        WHEEL: {
+                            type: ArgumentType.STRING,
+                            menu: 'motionWheel',
+                            defaultValue: MotionWheelMenu.both
+                        }
+                    }
+                },
+                {
+                    opcode: 'motionMoving',
+                    text: formatMessage({
+                        id: 'matatabot.motionMoving',
+                        default: 'MatataBot [TREND] [TEXT] cm',
+                        description: 'Moving'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        TREND: {
+                            type: ArgumentType.STRING,
+                            menu: 'motionTrend',
+                            defaultValue: MotionTrendMenu.forward
+                        },
+                        TEXT: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        }
+                    }
+                },
+                {
+                    opcode: 'motionWhirl',
+                    text: formatMessage({
+                        id: 'matatabot.motionWhirl',
+                        default: 'MatataBot turn [TEXT] degrees',
+                        description: 'Whirl'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        TEXT: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        }
+                    }
+                },
+                {
+                    opcode: 'motionAction',
+                    text: formatMessage({
+                        id: 'matatabot.motionAction',
+                        default: 'MatataBot The [ORDER] action',
+                        description: 'Action'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        ORDER: {
+                            type: ArgumentType.STRING,
+                            menu: 'motionOrder',
+                            defaultValue: MotionOrderMenu.first
+                        }
+                    }
+                },
+                {
+                    opcode: 'motionDance',
+                    text: formatMessage({
+                        id: 'matatabot.motionDance',
+                        default: 'MatataBot The [ORDER] dance',
+                        description: 'Dance'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        ORDER: {
+                            type: ArgumentType.STRING,
+                            menu: 'motionOrder',
+                            defaultValue: MotionOrderMenu.first
+                        }
+                    }
+                },
+                '---',
+                {
+                    opcode: 'looksEyeStyle',
+                    text: formatMessage({
+                        id: 'matatabot.looksEyeStyle',
+                        default: 'MatataBot Set [SIDE] eye [COLOR] by [LIGHT]',
+                        description: 'eye style'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        SIDE: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksSide',
+                            defaultValue: LooksSideMenu.left
+                        },
+                        COLOR: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksColor',
+                            defaultValue: LooksColorMenu.red
+                        },
+                        LIGHT: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksLight',
+                            defaultValue: LooksLightMenu.first
+                        }
+                    }
+                },
+                {
+                    opcode: 'looksEyeStyleByRGB',
+                    text: formatMessage({
+                        id: 'matatabot.looksEyeStyleByRGB',
+                        default: 'MatataBot Set [SIDE] eye R:[RED]G:[GREEN]B:[BLUE]',
+                        description: 'eye style RGB'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        SIDE: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksSide',
+                            defaultValue: LooksSideMenu.left
+                        },
+                        RED: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        GREEN: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        BLUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        }
+                    }
+                },
+                {
+                    opcode: 'looksEyeTurnOff',
+                    text: formatMessage({
+                        id: 'matatabot.looksEyeTurnOff',
+                        default: 'MatataBot All eyes lights off',
+                        description: 'all eyes lights off'
+                    }),
+                    blockType: BlockType.COMMAND
+                },
+                {
+                    opcode: 'looksLedStyle',
+                    text: formatMessage({
+                        id: 'matatabot.looksLedStyle',
+                        default: 'MatataBot Set [SITE] LED [COLOR] by [LIGHT]',
+                        description: 'led style'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        SITE: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksSite',
+                            defaultValue: LooksSiteMenu.previous
+                        },
+                        COLOR: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksColor',
+                            defaultValue: LooksColorMenu.white
+                        },
+                        LIGHT: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksLight',
+                            defaultValue: LooksLightMenu.light1
+                        }
+                    }
+                },
+                {
+                    opcode: 'looksLedStyleByRGB',
+                    text: formatMessage({
+                        id: 'matatabot.looksLedStyleByRGB',
+                        default: 'MatataBot Set Light [LIGHT] R:[RED]G:[GREEN]B:[BLUE]',
+                        description: 'led style by RGB'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        LIGHT: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksLight',
+                            defaultValue: LooksLightMenu.light1
+                        },
+                        RED: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        GREEN: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        BLUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        }
+                    }
+                },
+                {
+                    opcode: 'looksAllLedStyleByRGB',
+                    text: formatMessage({
+                        id: 'matatabot.looksAllLedStyleByRGB',
+                        default: 'MatataBot Set All Lights R:[RED]G:[GREEN]B:[BLUE]',
+                        description: 'all led style by RGB'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        RED: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        GREEN: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        BLUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        }
+                    }
+                },
+                {
+                    opcode: 'looksDisplaySymbol',
+                    text: formatMessage({
+                        id: 'matatabot.looksDisplaySymbol',
+                        default: 'matatabot display [MATRIX]',
+                        description: 'display a pattern on the matatabot display'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        MATRIX: {
+                            type: ArgumentType.MATRIX,
+                            defaultValue: '0111010001100011000101110'
+                        }
+                    }
+                },
+                {
+                    opcode: 'looksLightEffect',
+                    text: formatMessage({
+                        id: 'matatabot.looksLightEffect',
+                        default: 'matatabot LED display [LIGHTEFFECT]',
+                        description: 'display a light effect on the matatabot display'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        LIGHTEFFECT: {
+                            type: ArgumentType.STRING,
+                            menu: 'looksLightEffect',
+                            defaultValue: LooksLightEffectMenu.rainbow
+                        },
+                    }
+                },
+                {
+                    opcode: 'looksTurnOff',
+                    text: formatMessage({
+                        id: 'matatabot.looksTurnOff',
+                        default: 'MatataBot All led lights off',
+                        description: 'all led lights off'
+                    }),
+                    blockType: BlockType.COMMAND
+                },
+                '---',
+                {
+                    opcode: 'soundAlto',
+                    text: formatMessage({
+                        id: 'matatabot.soundAlto',
+                        default: 'MatataBot play [BEAT] [TONE] alto',
+                        description: 'play a beat sound'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        BEAT: {
+                            type: ArgumentType.STRING,
+                            menu: 'soundBeat',
+                            defaultValue: SoundBeatMenu.quarter
+                        },
+                        TONE: {
+                            type: ArgumentType.STRING,
+                            menu: 'soundTone',
+                            defaultValue: SoundBeatMenu.Do
+                        }
+                    }
+                },
+                {
+                    opcode: 'soundTreble',
+                    text: formatMessage({
+                        id: 'matatabot.soundTreble',
+                        default: 'MatataBot play [BEAT] [TONE] treble',
+                        description: 'play a beat sound'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        BEAT: {
+                            type: ArgumentType.STRING,
+                            menu: 'soundBeat',
+                            defaultValue: SoundBeatMenu.quarter
+                        },
+                        TONE: {
+                            type: ArgumentType.STRING,
+                            menu: 'soundTone',
+                            defaultValue: SoundBeatMenu.Do
+                        }
+                    }
+                },
+                {
+                    opcode: 'soundSong',
+                    text: formatMessage({
+                        id: 'matatabot.soundSong',
+                        default: 'MatataBot The [SONG] song',
+                        description: 'play a sound'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        SONG: {
+                            type: ArgumentType.STRING,
+                            menu: 'soundSong',
+                            defaultValue: SoundSongMenu.hello
+                        }
+                    }
+                },
+                {
+                    opcode: 'soundMelody',
+                    text: formatMessage({
+                        id: 'matatabot.soundMelody',
+                        default: 'MatataBot The [MELODY] melody',
+                        description: 'play a melody'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        MELODY: {
+                            type: ArgumentType.STRING,
+                            menu: 'soundMelody',
+                            defaultValue: SoundMelodyMenu.hello
+                        }
+                    }
+                },
+                '---',
+                {
+                    opcode: 'sensingIsHearSound',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsHearSound',
+                        default: '玛塔传感器 听到声音?',
+                        description: 'is sound heared on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN
+                },
+                {
+                    opcode: 'sensingIsDetectObstacle',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsDetectObstacle',
+                        default: '玛塔传感器 检测到障碍?',
+                        description: 'obstacle is detected on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN
+                },
+                {
+                    opcode: 'sensingIsDisappearObstacle',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsDisappearObstacle',
+                        default: '玛塔传感器 检测到障碍消失?',
+                        description: 'obstacle is detected to disappear on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN
+                },
+                {
+                    opcode: 'sensingIsIdentify',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsIdentify',
+                        default: '玛塔传感器 识别到[IDENTIFIER]?',
+                        description: 'is identified on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        IDENTIFIER: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingIdentifier',
+                            defaultValue: SensingIdentifierMenu.light
+                        }
+                    }
+                },
+                {
+                    opcode: 'sensingIsPressButton',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsPressButton',
+                        default: '玛塔传感器[BUTTON]键被按下',
+                        description: 'is pressed any button on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        BUTTON: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingButton',
+                            defaultValue: SensingButtonMenu.run
+                        }
+                    }
+                },
+                {
+                    opcode: 'sensingIsHappen',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsHappen',
+                        default: '玛塔传感器 发生[EVENT]',
+                        description: 'is happened any event on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        EVENT: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingEvent',
+                            defaultValue: SensingEventMenu.shake
+                        }
+                    }
+                },
+                {
+                    opcode: 'sensingIsIdentifyColor',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsIdentifyColor',
+                        default: '玛塔传感器 识别到颜色[COLOR]',
+                        description: 'is identified any color on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        COLOR: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingColor',
+                            defaultValue: SensingColorMenu.red
+                        }
+                    }
+                },
+                {
+                    opcode: 'sensingIsSendData',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsSendData',
+                        default: '玛塔传感器 Send Data[DATA]',
+                        description: 'is sended any data on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        DATA: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingColor',
+                            defaultValue: SensingColorMenu.red
+                        }
+                    }
+                },
+                {
+                    opcode: 'sensingIsWaitData',
+                    text: formatMessage({
+                        id: 'matatabot.sensingIsWaitData',
+                        default: '玛塔传感器 Wait Data[DATA]',
+                        description: 'is waited any data on sensor?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        DATA: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingColor',
+                            defaultValue: SensingColorMenu.red
+                        }
+                    }
+                },
+                {
+                    opcode: 'sensingLightness',
+                    text: formatMessage({
+                        id: 'matatabot.sensingLightness',
+                        default: '玛塔传感器 明暗度',
+                        description: 'the lightness of the sensing'
+                    }),
+                    blockType: BlockType.REPORTER
+                },
+                {
+                    opcode: 'sensingSwing',
+                    text: formatMessage({
+                        id: 'matatabot.sensingSwing',
+                        default: '玛塔传感器 摇晃度',
+                        description: 'the swing of the sensing'
+                    }),
+                    blockType: BlockType.REPORTER
+                },
+                {
+                    opcode: 'sensingColorChannel',
+                    text: formatMessage({
+                        id: 'matatabot.sensingColorChannel',
+                        default: '玛塔传感器[COLOR]通道值',
+                        description: 'the color channel of the sensing'
+                    }),
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        COLOR: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingColor',
+                            defaultValue: SensingColorMenu.red
+                        }
+                    }
+                },
+                {
+                    opcode: 'sensingAcceleration',
+                    text: formatMessage({
+                        id: 'matatabot.sensingAcceleration',
+                        default: '玛塔传感器[AXIS]轴加速度',
+                        description: 'the color channel of the sensing'
+                    }),
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        AXIS: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingAxis',
+                            defaultValue: SensingAxisMenu.x
+                        }
+                    }
+                },
+                {
+                    opcode: 'sensingPerspect',
+                    text: formatMessage({
+                        id: 'matatabot.sensingPerspect',
+                        default: '玛塔传感器[PERSPECT]',
+                        description: 'the perspective of the sensing'
+                    }),
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        PERSPECT: {
+                            type: ArgumentType.STRING,
+                            menu: 'sensingPerspect',
+                            defaultValue: SensingPerspectMenu.pitch
+                        }
+                    }
+                },
+                '---',
             ],
             menus: {
                 motionStep: {
                     acceptReporters: true,
                     items: this.MOTION_STEP_MENU
                 },
+                motionAngle: {
+                    acceptReporters: true,
+                    items: this.MOTION_ANGLE_MENU
+                },
+                motionWheel: {
+                    acceptReporters: true,
+                    items: this.MOTION_WHEEL_MENU
+                },
+                motionTrend: {
+                    acceptReporters: true,
+                    items: this.MOTION_TREND_MENU
+                },
+                motionOrder: {
+                    acceptReporters: true,
+                    items: this.MOTION_ORDER_MENU
+                },
+                looksSide: {
+                    acceptReporters: true,
+                    items: this.LOOKS_SIDE_MENU
+                },
+                looksColor: {
+                    acceptReporters: true,
+                    items: this.LOOKS_COLOR_MENU
+                },
+                looksLight: {
+                    acceptReporters: true,
+                    items: this.LOOKS_LIGHT_MENU
+                },
+                looksSite: {
+                    acceptReporters: true,
+                    items: this.LOOKS_SITE_MENU
+                },
+                looksLightEffect: {
+                    acceptReporters: true,
+                    items: this.LOOKS_LIGHT_EFFECT_MENU
+                },
+                soundBeat: {
+                    acceptReporters: true,
+                    items: this.SOUND_BEAT_MENU
+                },
+                soundTone: {
+                    acceptReporters: true,
+                    items: this.SOUND_TONE_MENU
+                },
+                soundSong: {
+                    acceptReporters: true,
+                    items: this.SOUND_SONG_MENU
+                },
+                soundMelody: {
+                    acceptReporters: true,
+                    items: this.SOUND_MELODY_MENU
+                },
+                sensingIdentifier: {
+                    acceptReporters: true,
+                    items: this.SENSING_IDENTIFIER_MENU
+                },
+                sensingButton: {
+                    acceptReporters: true,
+                    items: this.SENSING_BUTTON_MENU
+                },
+                sensingEvent: {
+                    acceptReporters: true,
+                    items: this.SENSING_EVENT_MENU
+                },
+                sensingColor: {
+                    acceptReporters: true,
+                    items: this.SENSING_COLOR_MENU
+                },
+                sensingData: {
+                    acceptReporters: true,
+                    items: this.SENSING_DATA_MENU
+                },
+                sensingAxis: {
+                    acceptReporters: true,
+                    items: this.SENSING_AXIS_MENU
+                },
+                sensingPerspect: {
+                    acceptReporters: true,
+                    items: this.SENSING_PERSPECT_MENU
+                }
             }
         };
     }
@@ -662,6 +2151,10 @@ class Scratch3MatataBotBlocks {
             }, 10);
         });
     }
+
+    motionTurnLeftAngle () {}
+
+    motionTurnRightAngle () {}
 }
 
 module.exports = Scratch3MatataBotBlocks;
