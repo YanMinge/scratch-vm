@@ -345,14 +345,6 @@ class MatataCon {
         } else {
             this.sound_flag = false;
         }
-        // return new Promise(resolve => {
-        //     setTimeout(() => {
-        //         this.key_value = 0;
-        //         this.motion_title_status = 0;
-        //         this.sound_flag = false;
-        //         resolve();
-        //     }, 300);
-        // });
     }
 
     parseCommand() {
@@ -413,7 +405,6 @@ class MatataCon {
             default: {
                 break;
             }
-
         }
 
         this._receivedCommand = this._receivedCommand.slice(this._receivedCommandLength + 2)
@@ -482,15 +473,15 @@ class MatataCon {
         this.setNewProtocol();
         setTimeout(()=> {
             this.setEventMonitor(0x01, 0x01); 
-        }, 8000);
+        }, 4000);
 
         setTimeout(()=> {
             this.setEventMonitor(0x02, 0x01); 
-        }, 2000);
+        }, 5000);
 
         setTimeout(()=> {
             this.setEventMonitor(0x03, 0x01); 
-        }, 2000);
+        }, 6000);
     }
 
     /**
@@ -516,6 +507,16 @@ const LightEffectMenu = {
     BREATHE:       'breathe',
 };
 
+const ButtonKeyMenu = {
+    PLAY:          'play',
+    DELETE:        'delete',
+    MUSIC:         'music',
+    FORWARD:       'forward',
+    BACKWARD:      'backward',
+    LEFT:          'left',
+    RIGHT:         'right',
+}
+
 const MotinStatusMenu = { 
     SHAKEN:        'shaken', 
     UP:            'up', 
@@ -537,15 +538,17 @@ const ColorTypeMenu = {
     BLACK:         'black',
 };
 
-const ButtonKeyMenu = {
-    PLAY:          'play',
-    DELETE:        'delete',
-    MUSIC:         'music',
-    FORWARD:       'forward',
-    BACKWARD:      'backward',
-    LEFT:          'left',
-    RIGHT:         'right',
-}
+const ColorChannelMenu = { 
+    RED:           'red', 
+    GREEN:         'green', 
+    BLUE:          'blue',
+};
+
+const AxisValueMenu = { 
+    X:           'x-axis', 
+    Y:           'y-axis', 
+    Z:           'z-axis',
+};
 
 const KeyValue = {
     KEY_PLAY:                           0x01,
@@ -832,6 +835,64 @@ class Scratch3MatataConBlocks {
         ];
     }
 
+    get COLOR_CHANNEL_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatacon.colorChannelMenu.red',
+                    default: 'red',
+                    description: 'The red color channel'
+                }),
+                value: ColorChannelMenu.RED
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.colorChannelMenu.green',
+                    default: 'green',
+                    description: 'The green color channel'
+                }),
+                value: ColorChannelMenu.GREEN
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.colorChannelMenu.blue',
+                    default: 'blue',
+                    description: 'The blue color channel'
+                }),
+                value: ColorChannelMenu.BLUE
+            },
+        ];
+    }
+
+    get AXIS_VALUE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatacon.axisValueMenu.x',
+                    default: 'x-axis',
+                    description: 'The x-axis channel'
+                }),
+                value: AxisValueMenu.X
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.axisValueMenu.y',
+                    default: 'y-axis',
+                    description: 'The y-axis channel'
+                }),
+                value: AxisValueMenu.Y
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.axisValueMenu.z',
+                    default: 'z-axis',
+                    description: 'The z-axis channel'
+                }),
+                value: AxisValueMenu.Z
+            },
+        ];
+    }
+
     /**
      * Construct a set of MatataCon blocks.
      * @param {Runtime} runtime - the Scratch 3.0 runtime.
@@ -874,15 +935,31 @@ class Scratch3MatataConBlocks {
                     }
                 },
                 {
+                    opcode: 'isButtonPressed',
+                    text: formatMessage({
+                        id: 'matatacon.isButtonPressed',
+                        default: '[BUTTON_KEY] is pressed?',
+                        description: 'Whether the button is pressed ?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                        BUTTON_KEY: {
+                            type: ArgumentType.STRING,
+                            menu: 'buttonKey',
+                            defaultValue: ButtonKeyMenu.PLAY
+                        }
+                    }
+                },
+                {
                     opcode: 'motionSensorStatus',
                     text: formatMessage({
                         id: 'matatacon.motionSensorStatus',
-                        default: 'sensor occurs[SENSOR_STATUS]?',
+                        default: 'sensor occurs[MOTION_STATUS]?',
                         description: 'is status happened on sensor ?'
                     }),
                     blockType: BlockType.BOOLEAN,
                     arguments: {
-                        SENSOR_STATUS: {
+                        MOTION_STATUS: {
                             type: ArgumentType.STRING,
                             menu: 'motionStatus',
                             defaultValue: MotinStatusMenu.SHAKEN
@@ -906,26 +983,159 @@ class Scratch3MatataConBlocks {
                     }
                 },
                 {
-                    opcode: 'isButtonPressed',
+                    opcode: 'isHearSomething',
                     text: formatMessage({
-                        id: 'matatacon.isButtonPressed',
-                        default: '[BUTTON_KEY] is pressed?',
-                        description: 'Whether the button is pressed ?'
+                        id: 'matatacon.isHearSomething',
+                        default: 'hear something?',
+                        description: 'Whether hear something ?'
                     }),
                     blockType: BlockType.BOOLEAN,
+                },
+                {
+                    opcode: 'isObstaclesAhead',
+                    text: formatMessage({
+                        id: 'matatacon.isObstaclesAhead',
+                        default: 'obstacles ahead?',
+                        description: 'Whether obstacles ahead ?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                },
+                {
+                    opcode: 'isBrightness',
+                    text: formatMessage({
+                        id: 'matatacon.isBrightness',
+                        default: 'is brightness?',
+                        description: 'Whether detect brightness ?'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                },
+                {
+                    opcode: 'getPitchAngle',
+                    text: formatMessage({
+                        id: 'matatacon.getPitchAngle',
+                        default: 'pitch angle°',
+                        description: 'get pitch angle'
+                    }),
+                    blockType: BlockType.REPORTER,
+                },
+                {
+                    opcode: 'getRollAngle',
+                    text: formatMessage({
+                        id: 'matatacon.getRollAngle',
+                        default: 'roll angle°',
+                        description: 'get roll angle'
+                    }),
+                    blockType: BlockType.REPORTER,
+                },
+                {
+                    opcode: 'getYawAngle',
+                    text: formatMessage({
+                        id: 'matatacon.getYawAngle',
+                        default: 'yaw angle°',
+                        description: 'get yaw angle'
+                    }),
+                    blockType: BlockType.REPORTER,
+                },
+                {
+                    opcode: 'getShakingStrength',
+                    text: formatMessage({
+                        id: 'matatacon.getShakingStrength',
+                        default: 'shaking strength',
+                        description: 'get shaking strength'
+                    }),
+                    blockType: BlockType.REPORTER,
+                },
+                {
+                    opcode: 'getAmbientLightIntensity',
+                    text: formatMessage({
+                        id: 'matatacon.getAmbientLightIntensity',
+                        default: 'ambient light intensity',
+                        description: 'get ambient light intensity'
+                    }),
+                    blockType: BlockType.REPORTER,
+                },
+                {
+                    opcode: 'getRGBColor',
+                    text: formatMessage({
+                        id: 'matatacon.getRGBColor',
+                        default: '[COLOR_CHANNEL]color value',
+                        description: 'get RGB color value'
+                    }),
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        COLOR_CHANNEL: {
+                            type: ArgumentType.STRING,
+                            menu: 'colorChannel',
+                            defaultValue: ColorChannelMenu.RED
+                        }
+                    }
+                },
+                {
+                    opcode: 'getAcceleration',
+                    text: formatMessage({
+                        id: 'matatacon.getAcceleration',
+                        default: '[AXIS_VALUE]acceleration',
+                        description: 'get acceleration value'
+                    }),
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        AXIS_VALUE: {
+                            type: ArgumentType.STRING,
+                            menu: 'axisValue',
+                            defaultValue: AxisValueMenu.X
+                        }
+                    }
+                },
+                {
+                    opcode: 'whenButtonPressed',
+                    text: formatMessage({
+                        id: 'matatacon.whenButtonPressed',
+                        default: 'when button [BUTTON_KEY] pressed',
+                        description: 'when a button is pressed'
+                    }),
+                    blockType: BlockType.HAT,
                     arguments: {
                         BUTTON_KEY: {
                             type: ArgumentType.STRING,
                             menu: 'buttonKey',
-                            defaultValue: ButtonKeyMenu.WHITE
+                            defaultValue: ButtonKeyMenu.PLAY
                         }
                     }
+                },
+                {
+                    opcode: 'whenAttitudeChangeTo',
+                    text: formatMessage({
+                        id: 'matatacon.whenAttitudeChangeTo',
+                        default: 'when attitude[MOTION_STATUS]',
+                        description: 'when attitude is change to'
+                    }),
+                    blockType: BlockType.HAT,
+                    arguments: {
+                        MOTION_STATUS: {
+                            type: ArgumentType.STRING,
+                            menu: 'motionStatus',
+                            defaultValue: MotinStatusMenu.SHAKEN
+                        }
+                    }
+                },
+                {
+                    opcode: 'whenHearSomething',
+                    text: formatMessage({
+                        id: 'matatacon.whenHearSomething',
+                        default: 'when hear something',
+                        description: 'when hear something'
+                    }),
+                    blockType: BlockType.HAT,
                 },
             ],
             menus: {
                 lightEffect: {
                     acceptReporters: true,
                     items: this.LIGHT_EFFECT_MENU
+                },
+                buttonKey: {
+                    acceptReporters: true,
+                    items: this.BUTTON_KEY_MENU
                 },
                 motionStatus: {
                     acceptReporters: true,
@@ -935,9 +1145,13 @@ class Scratch3MatataConBlocks {
                     acceptReporters: true,
                     items: this.COLOR_TYPE_MENU
                 },
-                buttonKey: {
+                colorChannel: {
                     acceptReporters: true,
-                    items: this.BUTTON_KEY_MENU
+                    items: this.COLOR_CHANNEL_MENU
+                },
+                axisValue: {
+                    acceptReporters: true,
+                    items: this.AXIS_VALUE_MENU
                 },
             }
         };
@@ -987,23 +1201,49 @@ class Scratch3MatataConBlocks {
         });
     }
 
+    isButtonPressed(args) {
+        let key_value = KeyValue.KEY_PLAY;
+        if (args.BUTTON_KEY == ButtonKeyMenu.PLAY) {
+            key_value = KeyValue.KEY_PLAY;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.DELETE) {
+            key_value = KeyValue.KEY_DELETE;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.MUSIC) {
+            key_value = KeyValue.KEY_MUSIC;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.FORWARD) {
+            key_value = KeyValue.KEY_FORWARD;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.BACKWARD) {
+            key_value = KeyValue.KEY_BACKWARD;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.LEFT) {
+            key_value = KeyValue.KEY_LEFT;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.BACK) {
+            key_value = KeyValue.KEY_RIGHT;
+        }
+        console.log("isButtonPressed");
+        console.log(this._peripheral.key_value);
+        if(key_value == (this._peripheral.key_value & key_value)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     motionSensorStatus (args) {
         let title_status = MotionTitle.TITLE_SHAKEN;
-        if (args.SENSOR_STATUS == MotinStatusMenu.SHAKEN) {
+        if (args.MOTION_STATUS == MotinStatusMenu.SHAKEN) {
             title_status = MotionTitle.TITLE_SHAKEN;
-        } else if (args.SENSOR_STATUS == MotinStatusMenu.UP) {
+        } else if (args.MOTION_STATUS == MotinStatusMenu.UP) {
             title_status = MotionTitle.TITLE_UP;
-        } else if (args.SENSOR_STATUS == MotinStatusMenu.DOWN) {
+        } else if (args.MOTION_STATUS == MotinStatusMenu.DOWN) {
             title_status = MotionTitle.TITLE_DOWN;
-        } else if (args.SENSOR_STATUS == MotinStatusMenu.LEFT) {
+        } else if (args.MOTION_STATUS == MotinStatusMenu.LEFT) {
             title_status = MotionTitle.TITLE_LEFT;
-        } else if (args.SENSOR_STATUS == MotinStatusMenu.RIGHT) {
+        } else if (args.MOTION_STATUS == MotinStatusMenu.RIGHT) {
             title_status = MotionTitle.TITLE_RIGHT;
-        } else if (args.SENSOR_STATUS == MotinStatusMenu.FRONT) {
+        } else if (args.MOTION_STATUS == MotinStatusMenu.FRONT) {
             title_status = MotionTitle.TITLE_FRONT;
-        } else if (args.SENSOR_STATUS == MotinStatusMenu.BACK) {
+        } else if (args.MOTION_STATUS == MotinStatusMenu.BACK) {
             title_status = MotionTitle.TITLE_BACK;
-        } else if (args.SENSOR_STATUS == MotinStatusMenu.FREE_FALL) {
+        } else if (args.MOTION_STATUS == MotinStatusMenu.FREE_FALL) {
             title_status = MotionTitle.TITLE_FREE_FALL;
         }
         console.log("motionSensorStatus");
@@ -1058,30 +1298,8 @@ class Scratch3MatataConBlocks {
         });
     }
 
-    isButtonPressed(args) {
-        let key_value = KeyValue.KEY_PLAY;
-        if (args.BUTTON_KEY == ButtonKeyMenu.PLAY) {
-            key_value = KeyValue.KEY_PLAY;
-        } else if (args.BUTTON_KEY == ButtonKeyMenu.DELETE) {
-            key_value = KeyValue.KEY_DELETE;
-        } else if (args.BUTTON_KEY == ButtonKeyMenu.MUSIC) {
-            key_value = KeyValue.KEY_MUSIC;
-        } else if (args.BUTTON_KEY == ButtonKeyMenu.FORWARD) {
-            key_value = KeyValue.KEY_FORWARD;
-        } else if (args.BUTTON_KEY == ButtonKeyMenu.BACKWARD) {
-            key_value = KeyValue.KEY_BACKWARD;
-        } else if (args.BUTTON_KEY == ButtonKeyMenu.LEFT) {
-            key_value = KeyValue.KEY_LEFT;
-        } else if (args.BUTTON_KEY == ButtonKeyMenu.BACK) {
-            key_value = KeyValue.KEY_RIGHT;
-        }
-        console.log("isButtonPressed");
-        console.log(this._peripheral.key_value);
-        if(key_value == (this._peripheral.key_value & key_value)){
-            return true;
-        } else {
-            return false;
-        }
+    isHearSomething(args) {
+        return this._peripheral.sound_flag;
     }
 }
 
