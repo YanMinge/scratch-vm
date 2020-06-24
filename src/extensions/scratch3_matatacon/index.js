@@ -423,7 +423,7 @@ class MatataCon {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 8000) {
+                if(count > 4000) {
                     console.log("setNewProtocol timeout!");
                     clearInterval(interval);
                     this.commandSyncFlag.setNewProtocolFlag = false;
