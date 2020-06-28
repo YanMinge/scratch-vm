@@ -2,6 +2,7 @@ const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const log = require('../../util/log');
 const cast = require('../../util/cast');
+const MathUtil = require('../../util/math-util');
 const formatMessage = require('format-message');
 const BLE = require('../../io/ble');
 const Base64Util = require('../../util/base64-util');
@@ -1688,6 +1689,42 @@ class Scratch3MatataConBlocks {
                     resolve();
                 }
                 else if(this._peripheral.commandSyncFlag.lightRingLedSingleSet2Flag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    lightRingLedSingleSet3 (args) {
+        const lightRingLedSingleSet3Data = new Array();
+        const led_index = args.LED_INDEX % 12;
+        const red = MathUtil.clamp(args.RED_VALUE, 0, 255);
+        const green = MathUtil.clamp(args.GREEN_VALUE, 0, 255);
+        const blue = MathUtil.clamp(args.BLUE_VALUE, 0 ,255);
+        lightRingLedSingleSet3Data.push(BLECommand.CMD_LIGHT_RING);
+        if(led_index == 0) {
+            lightRingLedSingleSet3Data.push(LightRingCommand.ALL_LIGHT_RGB_COLOR);
+        } else {
+            lightRingLedSingleSet3Data.push(LightRingCommand.SINGLE_LIGHT_RGB_COLOR);
+            lightRingLedSingleSet3Data.push(led_index);
+        }
+        lightRingLedSingleSet3Data.push(red);
+        lightRingLedSingleSet3Data.push(green);
+        lightRingLedSingleSet3Data.push(blue);
+        this._peripheral.commandSyncFlag.lightRingLedSingleSet3Flag = true;
+        this._peripheral.send(this._peripheral.packCommand(lightRingLedSingleSet3Data));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("lightRingLedSingleSet3 timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.lightRingLedSingleSet3Flag = false;
+                    resolve();
+                }
+                else if(this._peripheral.commandSyncFlag.lightRingLedSingleSet3Flag == false) {
                     clearInterval(interval);
                     resolve();
                 }
