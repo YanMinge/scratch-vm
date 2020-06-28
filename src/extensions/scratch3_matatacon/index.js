@@ -498,8 +498,8 @@ class MatataCon {
     }
 }
 
-const LightEffectMenu = { 
-    SPOONDRIFT:    'spoondrift', 
+const LightEffectMenu = {
+    SPOONDRIFT:    'spoondrift',
     METEOR:        'meteor', 
     RAINBOW:       'rainbow',
     FIREFLY:       'firefly',
@@ -517,8 +517,8 @@ const ButtonKeyMenu = {
     RIGHT:         'right',
 }
 
-const MotinStatusMenu = { 
-    SHAKEN:        'shaken', 
+const MotinStatusMenu = {
+    SHAKEN:        'shaken',
     UP:            'up', 
     DOWN:          'down',
     LEFT:          'tilted left',
@@ -528,8 +528,8 @@ const MotinStatusMenu = {
     FREE_FALL:     'free fall',
 };
 
-const ColorTypeMenu = { 
-    WHITE:         'white', 
+const ColorTypeMenu = {
+    WHITE:         'white',
     RED:           'red', 
     YELLOW:        'yellow',
     GREEN:         'green',
@@ -538,16 +538,52 @@ const ColorTypeMenu = {
     BLACK:         'black',
 };
 
-const ColorChannelMenu = { 
-    RED:           'red', 
-    GREEN:         'green', 
+const ColorChannelMenu = {
+    RED:           'red',
+    GREEN:         'green',
     BLUE:          'blue',
 };
 
-const AxisValueMenu = { 
-    X:           'x-axis', 
-    Y:           'y-axis', 
+const AxisValueMenu = {
+    X:           'x-axis',
+    Y:           'y-axis',
     Z:           'z-axis',
+};
+
+const LedRingIndexMenu = {
+    NUM1:        'the 1st',
+    NUM2:        'the 2nd',
+    NUM3:        'the 3rd',
+    NUM4:        'the 4th',
+    NUM5:        'the 5th',
+    NUM6:        'the 6th',
+    NUM7:        'the 7th',
+    NUM8:        'the 8th',
+    NUM9:        'the 9th',
+    NUM10:       'the 10th',
+    NUM11:       'the 11th',
+    NUM12:       'the 12th',
+    ALL:         'all',
+};
+
+const BrightnessLevelMenu = {
+    LEV1:        '1', 
+    LEV2:        '2', 
+    LEV3:        '3',
+    LEV4:        '4',
+    LEV5:        '5',
+    LEV6:        '6',
+    ROLL_DICE:   'roll dice'
+};
+
+const MessageIndexMenu = {
+    MSG1:        'one', 
+    MSG2:        'two', 
+    MSG3:        'three',
+    MSG4:        'four',
+    MSG5:        'five',
+    MSG6:        'six',
+    ROLL_DICE:   'roll dice'
 };
 
 const KeyValue = {
@@ -893,6 +929,237 @@ class Scratch3MatataConBlocks {
         ];
     }
 
+    get LED_RING_INDEX_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num1',
+                    default: 'the 1st',
+                    description: 'led index 1'
+                }),
+                value: LedRingIndexMenu.NUM1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num2',
+                    default: 'the 2nd',
+                    description: 'led index 2'
+                }),
+                value: LedRingIndexMenu.NUM2
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num3',
+                    default: 'the 3rd',
+                    description: 'led index 3'
+                }),
+                value: LedRingIndexMenu.NUM3
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num4',
+                    default: 'the 4th',
+                    description: 'led index 4'
+                }),
+                value: LedRingIndexMenu.NUM4
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num5',
+                    default: 'the 5th',
+                    description: 'led index 5'
+                }),
+                value: LedRingIndexMenu.NUM5
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num6',
+                    default: 'the 6th',
+                    description: 'led index 6'
+                }),
+                value: LedRingIndexMenu.NUM6
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num7',
+                    default: 'the 7th',
+                    description: 'led index 7'
+                }),
+                value: LedRingIndexMenu.NUM7
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num8',
+                    default: 'the 8th',
+                    description: 'led index 8'
+                }),
+                value: LedRingIndexMenu.NUM8
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num9',
+                    default: 'the 9th',
+                    description: 'led index 9'
+                }),
+                value: LedRingIndexMenu.NUM9
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num10',
+                    default: 'the 10th',
+                    description: 'led index 10'
+                }),
+                value: LedRingIndexMenu.NUM10
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num11',
+                    default: 'the 11th',
+                    description: 'led index 11'
+                }),
+                value: LedRingIndexMenu.NUM11
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.num12',
+                    default: 'the 12th',
+                    description: 'led index 12'
+                }),
+                value: LedRingIndexMenu.NUM12
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.ledRingIndexMenu.all',
+                    default: 'all',
+                    description: 'all led'
+                }),
+                value: LedRingIndexMenu.ALL
+            },
+        ];
+    }
+
+    get BRIGHTNESS_LEVEL_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatacon.brightnessLevelMenu.lev1',
+                    default: '1',
+                    description: 'led brightness level 1'
+                }),
+                value: BrightnessLevelMenu.LEV1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.brightnessLevelMenu.lev2',
+                    default: '2',
+                    description: 'led brightness level 1'
+                }),
+                value: BrightnessLevelMenu.LEV2
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.brightnessLevelMenu.lev3',
+                    default: '3',
+                    description: 'led brightness level 3'
+                }),
+                value: BrightnessLevelMenu.LEV3
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.brightnessLevelMenu.lev4',
+                    default: '4',
+                    description: 'led brightness level 4'
+                }),
+                value: BrightnessLevelMenu.LEV4
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.brightnessLevelMenu.lev5',
+                    default: '5',
+                    description: 'led brightness level 5'
+                }),
+                value: BrightnessLevelMenu.LEV5
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.brightnessLevelMenu.lev6',
+                    default: '6',
+                    description: 'led brightness level 6'
+                }),
+                value: BrightnessLevelMenu.LEV6
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.brightnessLevelMenu.rollDice',
+                    default: 'roll dice',
+                    description: 'roll dice led brightness'
+                }),
+                value: BrightnessLevelMenu.ROLL_DICE
+            },
+        ];
+    }
+
+    get MESSAGE_INDEX_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatacon.messageIndexMenu.msg1',
+                    default: 'one',
+                    description: 'message index one'
+                }),
+                value: MessageIndexMenu.MSG1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.messageIndexMenu.msg2',
+                    default: 'two',
+                    description: 'message index two'
+                }),
+                value: MessageIndexMenu.MSG2
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.messageIndexMenu.msg3',
+                    default: 'three',
+                    description: 'message index three'
+                }),
+                value: MessageIndexMenu.LEV1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.messageIndexMenu.msg4',
+                    default: 'four',
+                    description: 'message index four'
+                }),
+                value: MessageIndexMenu.LEV1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.messageIndexMenu.msg5',
+                    default: 'five',
+                    description: 'message index five'
+                }),
+                value: MessageIndexMenu.LEV1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.messageIndexMenu.msg6',
+                    default: 'six',
+                    description: 'message index six'
+                }),
+                value: MessageIndexMenu.LEV1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatacon.messageIndexMenu.rollDice',
+                    default: 'roll dice',
+                    description: 'roll dice message index'
+                }),
+                value: MessageIndexMenu.ROLL_DICE
+            },
+        ];
+    }
+
     /**
      * Construct a set of MatataCon blocks.
      * @param {Runtime} runtime - the Scratch 3.0 runtime.
@@ -919,6 +1186,77 @@ class Scratch3MatataConBlocks {
             showStatusButton: true,
             blocks: [
                 {
+                    opcode: 'lightRingLedSingleSet1',
+                    text: formatMessage({
+                        id: 'matatacon.lightRingLedSingleSet1',
+                        default: 'set [LED_INDEX] LED of color [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
+                        description: 'set single LED function 1'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        LED_INDEX: {
+                            type: ArgumentType.STRING,
+                            menu: 'ledRingIndex',
+                            defaultValue: LedRingIndexMenu.ALL
+                        },
+                        COLOR_TYPE: {
+                            type: ArgumentType.STRING,
+                            menu: 'colorType',
+                            defaultValue: BrightnessLevelMenu.WHITE
+                        },
+                        BRIGHTNESS_LEVEL: {
+                            type: ArgumentType.STRING,
+                            menu: 'brightnessLevel',
+                            defaultValue: BrightnessLevelMenu.LEV1
+                        }
+                    }
+                },
+                {
+                    opcode: 'lightRingLedSingleSet2',
+                    text: formatMessage({
+                        id: 'matatacon.lightRingLedSingleSet2',
+                        default: 'set LED [LED_INDEX] of color [COLOR_VALUE]',
+                        description: 'set single LED function 2'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        LED_INDEX: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        COLOR_VALUE: {
+                            type: ArgumentType.COLOR,
+                        }
+                    }
+                },
+                {
+                    opcode: 'lightRingLedSingleSet3',
+                    text: formatMessage({
+                        id: 'matatacon.lightRingLedSingleSet3',
+                        default: 'set LED [LED_INDEX] red [RED_VALUE] green [GREEN_VALUE] blue [BLUE_VALUE]',
+                        description: 'set single LED function 3'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        LED_INDEX: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        RED_VALUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 50
+                        },
+                        GREEN_VALUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 50
+                        },
+                        BLUE_VALUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 50
+                        }
+                    }
+                },
+                {
                     opcode: 'lightRingShowEffect',
                     text: formatMessage({
                         id: 'matatacon.lightRingShowEffect',
@@ -933,6 +1271,47 @@ class Scratch3MatataConBlocks {
                             defaultValue: LightEffectMenu.SPOONDRIFT
                         }
                     }
+                },
+                {
+                    opcode: 'sendIRMessage',
+                    text: formatMessage({
+                        id: 'matatacon.sendIRMessage',
+                        default: 'send message [MESSAGE_INDEX]',
+                        description: 'send IR message'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        MESSAGE_INDEX: {
+                            type: ArgumentType.STRING,
+                            menu: 'messageIndex',
+                            defaultValue: MessageIndexMenu.MSG1
+                        }
+                    }
+                },
+                {
+                    opcode: 'waitIRMessage',
+                    text: formatMessage({
+                        id: 'matatacon.waitIRMessage',
+                        default: 'wait message [MESSAGE_INDEX]',
+                        description: 'wait IR message'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        MESSAGE_INDEX: {
+                            type: ArgumentType.STRING,
+                            menu: 'messageIndex',
+                            defaultValue: MessageIndexMenu.MSG1
+                        }
+                    }
+                },
+                {
+                    opcode: 'lightRingAllLedOff',
+                    text: formatMessage({
+                        id: 'matatacon.lightRingAllLedOff',
+                        default: 'turn all LED off',
+                        description: 'turn all led off'
+                    }),
+                    blockType: BlockType.COMMAND,
                 },
                 {
                     opcode: 'isButtonPressed',
@@ -954,7 +1333,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'motionSensorStatus',
                     text: formatMessage({
                         id: 'matatacon.motionSensorStatus',
-                        default: 'sensor occurs[MOTION_STATUS]?',
+                        default: 'sensor occurs [MOTION_STATUS]?',
                         description: 'is status happened on sensor ?'
                     }),
                     blockType: BlockType.BOOLEAN,
@@ -970,7 +1349,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'recognizeColor',
                     text: formatMessage({
                         id: 'matatacon.recognizeColor',
-                        default: 'recognize color[COLOR_TYPE]?',
+                        default: 'recognize color [COLOR_TYPE]?',
                         description: 'Whether the specified color is recognized ?'
                     }),
                     blockType: BlockType.BOOLEAN,
@@ -1106,7 +1485,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'whenAttitudeChangeTo',
                     text: formatMessage({
                         id: 'matatacon.whenAttitudeChangeTo',
-                        default: 'when attitude[MOTION_STATUS]',
+                        default: 'when attitude [MOTION_STATUS]',
                         description: 'when attitude is change to'
                     }),
                     blockType: BlockType.HAT,
@@ -1152,6 +1531,18 @@ class Scratch3MatataConBlocks {
                 axisValue: {
                     acceptReporters: true,
                     items: this.AXIS_VALUE_MENU
+                },
+                ledRingIndex: {
+                    acceptReporters: true,
+                    items: this.LED_RING_INDEX_MENU 
+                },
+                brightnessLevel: {
+                    acceptReporters: true,
+                    items: this.BRIGHTNESS_LEVEL_MENU
+                },
+                messageIndex: {
+                    acceptReporters: true,
+                    items: this.MESSAGE_INDEX_MENU
                 },
             }
         };
