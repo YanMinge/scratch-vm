@@ -37,6 +37,8 @@ const SensorDetectCommand = {
     MOTION_STATUS_DETECT:               0x02,
     SOUND_DETECT:                       0x03,
     OBSTACLE_DETECT:                    0x04,
+    LIGHT_DETECT:                       0x05,
+    IR_MESSAGE:                         0x06,
 };
 
 /**
@@ -128,12 +130,15 @@ class MatataCon {
             lightRingLedSingleSet2Flag: false,
             lightRingLedSingleSet3Flag: false,
             lightRingEffectFlag: false,
+            sendIRmessageFlag: false,
+            waitIRmessageFlag: false,
             sensorDetectMotionStatusFlag: false,
             sensorDetectColorTypeFlag: false,
             eventDetectFlag: false,
             setNewProtocolFlag: false,
         };
-
+        
+        this.wait_ir_message = 0;
         this.motion_time = 0;
         this.motion_title_status = 0;
         this.key_value = 0;
@@ -350,6 +355,9 @@ class MatataCon {
          if (this.commandSyncFlag.lightRingLedSingleSet3Flag == true) {
              this.commandSyncFlag.lightRingLedSingleSet3Flag = false;
          }
+         if(this.commandSyncFlag.sendIRmessageFlag == true) {
+             this.commandSyncFlag.sendIRmessageFlag = false;
+         }
     }
 
     eventDetectDataFill(key_value, title_value, other_sensor) {
@@ -387,6 +395,11 @@ class MatataCon {
                         this.color_type_match = true;
                     } else {
                         this.color_type_match = false;
+                    }
+                }
+                if(command_data[2] == SensorDetectCommand.IR_MESSAGE) {
+                    if(command_data[3] == this.wait_ir_message) {
+                        commandSyncFlag.waitIRmessageFlag = false;
                     }
                 }
                 break;
@@ -1765,6 +1778,92 @@ class Scratch3MatataConBlocks {
                     resolve();
                 }
                 else if(this._peripheral.commandSyncFlag.lightRingEffectFlag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    sendIRMessage(args) {
+        const sendIRMessageData = new Array();
+        let message_index = 1;
+        if (args.MESSAGE_INDEX == MessageIndexMenu.MSG1) {
+            message_index = 1;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG2) {
+            message_index = 2;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG3) {
+            message_index = 3;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG4) {
+            message_index = 4;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG5) {
+            message_index = 5;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG6) {
+            message_index = 6;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.ROLL_DICE) {
+            message_index = this.rollDice();
+        }
+        sendIRMessageData.push(BLECommand.CMD_SENSOR_DETECT);
+        sendIRMessageData.push(SensorDetectCommand.IR_MESSAGE);
+        sendIRMessageData.push(0x01);   //send IR message
+        sendIRMessageData.push(message_index);
+        this._peripheral.commandSyncFlag.sendIRmessageFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(sendIRMessageData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("sendIRMessage timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.sendIRmessageFlag = false;
+                    resolve();
+                }
+                else if(this._peripheral.commandSyncFlag.sendIRmessageFlag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    waitIRMessage(args) {
+        const waitIRMessageData = new Array();
+        let message_index = 1;
+        if (args.MESSAGE_INDEX == MessageIndexMenu.MSG1) {
+            message_index = 1;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG2) {
+            message_index = 2;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG3) {
+            message_index = 3;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG4) {
+            message_index = 4;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG5) {
+            message_index = 5;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.MSG6) {
+            message_index = 6;
+        } else if (args.MESSAGE_INDEX == MessageIndexMenu.ROLL_DICE) {
+            message_index = this.rollDice();
+        }
+        this._peripheral.wait_ir_message = message_index;
+        waitIRMessageData.push(BLECommand.CMD_SENSOR_DETECT);
+        waitIRMessageData.push(SensorDetectCommand.IR_MESSAGE);
+        waitIRMessageData.push(0x02);   //wait IR message
+        waitIRMessageData.push(message_index);
+        this._peripheral.commandSyncFlag.waitIRmessageFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(waitIRMessageData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 60 * 1000) {
+                    console.log("waitIRMessage timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.waitIRmessageFlag = false;
+                    resolve();
+                }
+                else if(this._peripheral.commandSyncFlag.waitIRmessageFlag == false) {
+                    console.log("waitIRMessage success!");
                     clearInterval(interval);
                     resolve();
                 }
