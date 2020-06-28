@@ -130,6 +130,7 @@ class MatataCon {
             lightRingLedSingleSet2Flag: false,
             lightRingLedSingleSet3Flag: false,
             lightRingEffectFlag: false,
+            lightRingAllLedOffFlag: false,
             sendIRmessageFlag: false,
             waitIRmessageFlag: false,
             sensorDetectMotionStatusFlag: false,
@@ -357,6 +358,9 @@ class MatataCon {
          }
          if(this.commandSyncFlag.sendIRmessageFlag == true) {
              this.commandSyncFlag.sendIRmessageFlag = false;
+         }
+         if(this.commandSyncFlag.lightRingAllLedOffFlag == true) {
+             this.commandSyncFlag.lightRingAllLedOffFlag = false;
          }
     }
 
@@ -1301,6 +1305,15 @@ class Scratch3MatataConBlocks {
                     }
                 },
                 {
+                    opcode: 'lightRingAllLedOff',
+                    text: formatMessage({
+                        id: 'matatacon.lightRingAllLedOff',
+                        default: 'turn all LED off',
+                        description: 'turn all led off'
+                    }),
+                    blockType: BlockType.COMMAND,
+                },
+                {
                     opcode: 'sendIRMessage',
                     text: formatMessage({
                         id: 'matatacon.sendIRMessage',
@@ -1331,15 +1344,6 @@ class Scratch3MatataConBlocks {
                             defaultValue: MessageIndexMenu.MSG1
                         }
                     }
-                },
-                {
-                    opcode: 'lightRingAllLedOff',
-                    text: formatMessage({
-                        id: 'matatacon.lightRingAllLedOff',
-                        default: 'turn all LED off',
-                        description: 'turn all led off'
-                    }),
-                    blockType: BlockType.COMMAND,
                 },
                 {
                     opcode: 'isButtonPressed',
@@ -1778,6 +1782,33 @@ class Scratch3MatataConBlocks {
                     resolve();
                 }
                 else if(this._peripheral.commandSyncFlag.lightRingEffectFlag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    lightRingAllLedOff(args) {
+        const lightRingAllLedOffData = new Array();
+        lightRingAllLedOffData.push(BLECommand.CMD_LIGHT_RING);
+        lightRingAllLedOffData.push(LightRingCommand.ALL_LIGHT_RGB_COLOR);
+        lightRingAllLedOffData.push(0x00);
+        lightRingAllLedOffData.push(0x00);
+        lightRingAllLedOffData.push(0x00);
+        this._peripheral.commandSyncFlag.lightRingAllLedOffFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(lightRingAllLedOffData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("lightRingAllLedOff timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.lightRingAllLedOffFlag = false;
+                    resolve();
+                }
+                else if(this._peripheral.commandSyncFlag.lightRingAllLedOffFlag == false) {
                     clearInterval(interval);
                     resolve();
                 }
