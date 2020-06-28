@@ -136,6 +136,8 @@ class MatataCon {
             sensorDetectMotionStatusFlag: false,
             sensorDetectColorTypeFlag: false,
             eventDetectFlag: false,
+            obstaclesAheadFlag: false,
+            BrightnessDetectFlag: false,
             setNewProtocolFlag: false,
         };
         
@@ -144,6 +146,8 @@ class MatataCon {
         this.motion_title_status = 0;
         this.key_value = 0;
         this.sound_flag = false;
+        this.obstacles_ahead_flag = false;
+        this.brightness_flag = false;
         this.motion_status_match = false;
         this.color_type_match = false;
 
@@ -386,25 +390,41 @@ class MatataCon {
             case BLECommand.CMD_SENSOR_DETECT: {
                 console.log("receive sensor detect rsp(%d)!", command_data[3]);
                 if(command_data[2] == SensorDetectCommand.MOTION_STATUS_DETECT) {
-                    this.commandSyncFlag.sensorDetectMotionStatusFlag = false;
                     if(command_data[3] == 1) {
                         this.motion_status_match = true;
                     } else {
                         this.motion_status_match = false;
                     }
+                    this.commandSyncFlag.sensorDetectMotionStatusFlag = false;
                 }
-                if(command_data[2] == SensorDetectCommand.COLOR_DETECT) {
-                    this.commandSyncFlag.sensorDetectColorTypeFlag = false;
+                else if(command_data[2] == SensorDetectCommand.COLOR_DETECT) {
                     if(command_data[3] == 1) {
                         this.color_type_match = true;
                     } else {
                         this.color_type_match = false;
                     }
+                    this.commandSyncFlag.sensorDetectColorTypeFlag = false;
                 }
-                if(command_data[2] == SensorDetectCommand.IR_MESSAGE) {
+                else if(command_data[2] == SensorDetectCommand.IR_MESSAGE) {
                     if(command_data[3] == this.wait_ir_message) {
                         commandSyncFlag.waitIRmessageFlag = false;
                     }
+                }
+                else if(command_data[2] == SensorDetectCommand.OBSTACLE_DETECT) {
+                    if(command_data[3] == 1) {
+                        this.obstacles_ahead_flag = true;
+                    } else {
+                        this.obstacles_ahead_flag = false;
+                    }
+                    this.commandSyncFlag.obstaclesAheadFlag = false;
+                }
+                else if(command_data[2] == SensorDetectCommand.LIGHT_DETECT) {
+                    if(command_data[3] == 1) {
+                        this.brightness_flag = true;
+                    } else {
+                        this.brightness_flag = false;
+                    }
+                    this.commandSyncFlag.BrightnessDetectFlag = false;
                 }
                 break;
             }
@@ -1920,8 +1940,8 @@ class Scratch3MatataConBlocks {
         } else if (args.BUTTON_KEY == ButtonKeyMenu.BACK) {
             key_value = KeyValue.KEY_RIGHT;
         }
-        console.log("isButtonPressed");
-        console.log(this._peripheral.key_value);
+        // console.log("isButtonPressed");
+        // console.log(this._peripheral.key_value);
         if(key_value == (this._peripheral.key_value & key_value)){
             return true;
         } else {
@@ -1929,7 +1949,7 @@ class Scratch3MatataConBlocks {
         }
     }
 
-    motionSensorStatus (args) {
+    motionSensorStatus(args) {
         let title_status = MotionTitle.TITLE_SHAKEN;
         if (args.MOTION_STATUS == MotinStatusMenu.SHAKEN) {
             title_status = MotionTitle.TITLE_SHAKEN;
@@ -1948,8 +1968,8 @@ class Scratch3MatataConBlocks {
         } else if (args.MOTION_STATUS == MotinStatusMenu.FREE_FALL) {
             title_status = MotionTitle.TITLE_FREE_FALL;
         }
-        console.log("motionSensorStatus");
-        console.log(this._peripheral.motion_title_status);
+        // console.log("motionSensorStatus");
+        // console.log(this._peripheral.motion_title_status);
         if(title_status == (this._peripheral.motion_title_status & title_status)){
             return true;
         } else {
@@ -2002,6 +2022,54 @@ class Scratch3MatataConBlocks {
 
     isHearSomething(args) {
         return this._peripheral.sound_flag;
+    }
+
+    isObstaclesAhead(args) {
+        const isObstaclesAheadData = new Array();
+        isObstaclesAheadData.push(BLECommand.CMD_SENSOR_DETECT);
+        isObstaclesAheadData.push(SensorDetectCommand.OBSTACLE_DETECT);
+        this._peripheral.commandSyncFlag.obstaclesAheadFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(isObstaclesAheadData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("isObstaclesAhead timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.obstaclesAheadFlag = false;
+                    resolve(false);
+                }
+                else if(this._peripheral.commandSyncFlag.obstaclesAheadFlag == false) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.obstacles_ahead_flag);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    isBrightness(args) {
+        const isBrightnessData = new Array();
+        isBrightnessData.push(BLECommand.CMD_SENSOR_DETECT);
+        isBrightnessData.push(SensorDetectCommand.LIGHT_DETECT);
+        this._peripheral.commandSyncFlag.BrightnessDetectFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(isBrightnessData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("isBrightness timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.BrightnessDetectFlag = false;
+                    resolve(false);
+                }
+                else if(this._peripheral.commandSyncFlag.BrightnessDetectFlag == false) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.brightness_flag);
+                }
+                count += 10;
+            }, 10);
+        });
     }
 }
 
