@@ -27,6 +27,8 @@ const LightRingCommand = {
     ALL_LIGHT_SPECIFY_COLOR:            0x02,
     ALL_LIGHT_RGB_COLOR:                0x03,
     LIGHT_EFFECT:                       0x06,
+    LAMP_PANEL_RGB:                     0x07,
+    SINGLE_LIGHT_RGB_COLOR:             0x08,
 };
 
 const SensorDetectCommand = {
@@ -122,6 +124,8 @@ class MatataCon {
 
         this.commandSyncFlag = {
             lightRingLedSingleSet1Flag: false,
+            lightRingLedSingleSet2Flag: false,
+            lightRingLedSingleSet3Flag: false,
             lightRingEffectFlag: false,
             sensorDetectMotionStatusFlag: false,
             sensorDetectColorTypeFlag: false,
@@ -338,6 +342,12 @@ class MatataCon {
          }
          if (this.commandSyncFlag.lightRingLedSingleSet1Flag == true) {
              this.commandSyncFlag.lightRingLedSingleSet1Flag = false;
+         }
+         if (this.commandSyncFlag.lightRingLedSingleSet2Flag == true) {
+             this.commandSyncFlag.lightRingLedSingleSet2Flag = false;
+         }
+         if (this.commandSyncFlag.lightRingLedSingleSet3Flag == true) {
+             this.commandSyncFlag.lightRingLedSingleSet3Flag = false;
          }
     }
 
@@ -1641,6 +1651,43 @@ class Scratch3MatataConBlocks {
                     resolve();
                 }
                 else if(this._peripheral.commandSyncFlag.lightRingLedSingleSet1Flag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    lightRingLedSingleSet2 (args) {
+        const lightRingLedSingleSet2Data = new Array();
+        const led_index = args.LED_INDEX % 12;
+        const rgb = cast.toRgbColorObject(args.COLOR_VALUE);
+        const red = rgb.r;
+        const green = rgb.g;
+        const blue = rgb.b;
+        lightRingLedSingleSet2Data.push(BLECommand.CMD_LIGHT_RING);
+        if(led_index == 0) {
+            lightRingLedSingleSet2Data.push(LightRingCommand.ALL_LIGHT_RGB_COLOR);
+        } else {
+            lightRingLedSingleSet2Data.push(LightRingCommand.SINGLE_LIGHT_RGB_COLOR);
+            lightRingLedSingleSet2Data.push(led_index);
+        }
+        lightRingLedSingleSet2Data.push(red);
+        lightRingLedSingleSet2Data.push(green);
+        lightRingLedSingleSet2Data.push(blue);
+        this._peripheral.commandSyncFlag.lightRingLedSingleSet2Flag = true;
+        this._peripheral.send(this._peripheral.packCommand(lightRingLedSingleSet2Data));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("lightRingLedSingleSet2 timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.lightRingLedSingleSet2Flag = false;
+                    resolve();
+                }
+                else if(this._peripheral.commandSyncFlag.lightRingLedSingleSet2Flag == false) {
                     clearInterval(interval);
                     resolve();
                 }
