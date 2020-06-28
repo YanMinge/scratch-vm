@@ -121,6 +121,7 @@ class MatataCon {
         this._lastFrameReservedData = null;
 
         this.commandSyncFlag = {
+            lightRingLedSingleSet1Flag: false,
             lightRingEffectFlag: false,
             sensorDetectMotionStatusFlag: false,
             sensorDetectColorTypeFlag: false,
@@ -334,6 +335,9 @@ class MatataCon {
          }
          if (this.commandSyncFlag.eventDetectFlag == true) {
              this.commandSyncFlag.eventDetectFlag = false;
+         }
+         if (this.commandSyncFlag.lightRingLedSingleSet1Flag == true) {
+             this.commandSyncFlag.lightRingLedSingleSet1Flag = false;
          }
     }
 
@@ -1202,7 +1206,7 @@ class Scratch3MatataConBlocks {
                         COLOR_TYPE: {
                             type: ArgumentType.STRING,
                             menu: 'colorType',
-                            defaultValue: BrightnessLevelMenu.WHITE
+                            defaultValue: ColorTypeMenu.WHITE
                         },
                         BRIGHTNESS_LEVEL: {
                             type: ArgumentType.STRING,
@@ -1550,6 +1554,99 @@ class Scratch3MatataConBlocks {
 
     rollDice(min, max) {
         return Math.floor(Math.random() * 6) + 1;
+    }
+
+    lightRingLedSingleSet1 (args) {
+        const lightRingLedSingleSet1Data = new Array();
+        let led_index = 0x0d;
+        let color_type = 0x01;
+        let brightness_level = 0x01;
+        if (args.LED_INDEX == LedRingIndexMenu.NUM1) {
+            led_index = 0x01;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM2) {
+            led_index = 0x02;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM3) {
+            led_index = 0x03;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM4) {
+            led_index = 0x04;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM5) {
+            led_index = 0x05;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM6) {
+            led_index = 0x06;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM7) {
+            led_index = 0x07;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM8) {
+            led_index = 0x08;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM9) {
+            led_index = 0x09;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM10) {
+            led_index = 0x0a;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM11) {
+            led_index = 0x0b;
+        } else if (args.LED_INDEX == LedRingIndexMenu.NUM12) {
+            led_index = 0x0c;
+        } else if (args.LED_INDEX == LedRingIndexMenu.ALL) {
+            led_index = 0x0d;
+        }
+
+        if (args.COLOR_TYPE == ColorTypeMenu.WHITE) {
+            color_type = 0x01;
+        } else if (args.COLOR_TYPE == ColorTypeMenu.RED) {
+            color_type = 0x02;
+        } else if (args.COLOR_TYPE == ColorTypeMenu.YELLOW) {
+            color_type = 0x03;
+        } else if (args.COLOR_TYPE == ColorTypeMenu.GREEN) {
+            color_type = 0x04;
+        } else if (args.COLOR_TYPE == ColorTypeMenu.BLUE) {
+            color_type = 0x05;
+        } else if (args.COLOR_TYPE == ColorTypeMenu.PURPLE) {
+            color_type = 0x06;
+        } else if (args.COLOR_TYPE == ColorTypeMenu.BLACK) {
+            color_type = 0x07;
+        }
+
+        if (args.BRIGHTNESS_LEVEL == BrightnessLevelMenu.LEV1) {
+            brightness_level = 0x01;
+        } else if (args.BRIGHTNESS_LEVEL == BrightnessLevelMenu.LEV2) {
+            brightness_level = 0x02;
+        } else if (args.BRIGHTNESS_LEVEL == BrightnessLevelMenu.LEV3) {
+            brightness_level = 0x03;
+        } else if (args.BRIGHTNESS_LEVEL == BrightnessLevelMenu.LEV4) {
+            brightness_level = 0x04;
+        } else if (args.BRIGHTNESS_LEVEL == BrightnessLevelMenu.LEV5) {
+            brightness_level = 0x05;
+        } else if (args.BRIGHTNESS_LEVEL == BrightnessLevelMenu.LEV6) {
+            brightness_level = 0x06;
+        } else if (args.BRIGHTNESS_LEVEL == BrightnessLevelMenu.ROLL_DICE) {
+            brightness_level = this.rollDice();
+        }
+        lightRingLedSingleSet1Data.push(BLECommand.CMD_LIGHT_RING);
+        if(led_index == 0x0d) {
+            lightRingLedSingleSet1Data.push(LightRingCommand.ALL_LIGHT_SPECIFY_COLOR);
+        } else {
+            lightRingLedSingleSet1Data.push(LightRingCommand.SINGLE_LIGHT_SPECIFY_COLOR);
+            lightRingLedSingleSet1Data.push(led_index);
+        }
+        lightRingLedSingleSet1Data.push(color_type);
+        lightRingLedSingleSet1Data.push(brightness_level);
+        this._peripheral.commandSyncFlag.lightRingLedSingleSet1Flag = true;
+        this._peripheral.send(this._peripheral.packCommand(lightRingLedSingleSet1Data));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("lightRingLedSingleSet1 timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.lightRingLedSingleSet1Flag = false;
+                    resolve();
+                }
+                else if(this._peripheral.commandSyncFlag.lightRingLedSingleSet1Flag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
     }
 
     lightRingShowEffect (args) {
