@@ -17,6 +17,7 @@ const blockIconURI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAEICAYA
 const BLECommand = {
     CMD_LIGHT_RING:                     0x18,
     CMD_SENSOR_DETECT:                  0x20,
+    CMD_GET_SENSOR_VALUE:               0x28,
     CMD_EVENT_DETECT:                   0x32,
     CMD_SET_NEW_PROTOCOL:               0x7e,
     CMD_HEARTBEAT:                      0x87,
@@ -39,6 +40,11 @@ const SensorDetectCommand = {
     OBSTACLE_DETECT:                    0x04,
     LIGHT_DETECT:                       0x05,
     IR_MESSAGE:                         0x06,
+};
+
+const GetSensorValueCommand = {
+    MOTION_SENSOR:                      0x01,
+    LIGHT_SENSOR:                       0x02,
 };
 
 /**
@@ -138,6 +144,9 @@ class MatataCon {
             eventDetectFlag: false,
             obstaclesAheadFlag: false,
             BrightnessDetectFlag: false,
+            GetMotionPitchFlag: false,
+            GetMotionRollFlag: false,
+            GetMotionYawFlag: false,
             setNewProtocolFlag: false,
         };
         
@@ -150,6 +159,9 @@ class MatataCon {
         this.brightness_flag = false;
         this.motion_status_match = false;
         this.color_type_match = false;
+        this.pitch = 0;
+        this.roll = 0;
+        this.yaw = 0;
 
 
         this.reset = this.reset.bind(this);
@@ -378,6 +390,18 @@ class MatataCon {
         }
     }
 
+    getFloat(byte1, byte2, byte3, byte4) {
+        let buffer = new Uint8Array([
+            byte4,
+            byte3,
+            byte2,
+            byte1
+        ]).buffer;
+        let view = new DataView(buffer);
+        let value = view.getFloat32(0, true);
+        return value;
+    }
+
     parseCommand() {
         if (this.checkCRC() == false) {
             console.log("checkCRC false!");
@@ -398,7 +422,7 @@ class MatataCon {
                     this.commandSyncFlag.sensorDetectMotionStatusFlag = false;
                 }
                 else if(command_data[2] == SensorDetectCommand.COLOR_DETECT) {
-                    if(command_data[3] == 1) {
+                    if(command_data[4] == 1) {
                         this.color_type_match = true;
                     } else {
                         this.color_type_match = false;
@@ -406,12 +430,12 @@ class MatataCon {
                     this.commandSyncFlag.sensorDetectColorTypeFlag = false;
                 }
                 else if(command_data[2] == SensorDetectCommand.IR_MESSAGE) {
-                    if(command_data[3] == this.wait_ir_message) {
+                    if(command_data[4] == this.wait_ir_message) {
                         commandSyncFlag.waitIRmessageFlag = false;
                     }
                 }
                 else if(command_data[2] == SensorDetectCommand.OBSTACLE_DETECT) {
-                    if(command_data[3] == 1) {
+                    if(command_data[4] == 1) {
                         this.obstacles_ahead_flag = true;
                     } else {
                         this.obstacles_ahead_flag = false;
@@ -419,12 +443,33 @@ class MatataCon {
                     this.commandSyncFlag.obstaclesAheadFlag = false;
                 }
                 else if(command_data[2] == SensorDetectCommand.LIGHT_DETECT) {
-                    if(command_data[3] == 1) {
+                    if(command_data[4] == 1) {
                         this.brightness_flag = true;
                     } else {
                         this.brightness_flag = false;
                     }
                     this.commandSyncFlag.BrightnessDetectFlag = false;
+                }
+                break;
+            }
+            case BLECommand.CMD_GET_SENSOR_VALUE: {
+                console.log("get sensor value");
+                if(command_data[2] == GetSensorValueCommand.MOTION_SENSOR) {
+                    if(command_data[3] == 0x05) {
+                        this.pitch = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
+                        this.commandSyncFlag.GetMotionPitchFlag = false;
+                        console.log("pitch = " + this.pitch);
+                    }
+                    if (command_data[3] == 0x04) {
+                        this.roll = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
+                        this.commandSyncFlag.GetMotionRollFlag = false;
+                        console.log("roll = " + this.roll);
+                    }
+                    if (command_data[3] == 0x06) {
+                        this.yaw = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
+                        this.commandSyncFlag.GetMotionYawFlag = false;
+                        console.log("yaw = " + this.yaw);
+                    }
                 }
                 break;
             }
@@ -461,6 +506,7 @@ class MatataCon {
 
         this._receivedCommand = this._receivedCommand.slice(this._receivedCommandLength + 2)
         this._receivedCommandLength = 0;
+        this._receivedCommandStart = false;
     }
 
     setNewProtocol () {
@@ -1682,7 +1728,7 @@ class Scratch3MatataConBlocks {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1000) {
+                if(count > 2000) {
                     console.log("lightRingLedSingleSet1 timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingLedSingleSet1Flag = false;
@@ -1719,7 +1765,7 @@ class Scratch3MatataConBlocks {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1000) {
+                if(count > 2000) {
                     console.log("lightRingLedSingleSet2 timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingLedSingleSet2Flag = false;
@@ -1755,7 +1801,7 @@ class Scratch3MatataConBlocks {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1000) {
+                if(count > 2000) {
                     console.log("lightRingLedSingleSet3 timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingLedSingleSet3Flag = false;
@@ -1795,7 +1841,7 @@ class Scratch3MatataConBlocks {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1000) {
+                if(count > 2000) {
                     console.log("lightRingShowEffect timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingEffectFlag = false;
@@ -1822,7 +1868,7 @@ class Scratch3MatataConBlocks {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1000) {
+                if(count > 2000) {
                     console.log("lightRingAllLedOff timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingAllLedOffFlag = false;
@@ -1864,7 +1910,7 @@ class Scratch3MatataConBlocks {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1000) {
+                if(count > 2000) {
                     console.log("sendIRMessage timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.sendIRmessageFlag = false;
@@ -2005,7 +2051,7 @@ class Scratch3MatataConBlocks {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1500) {
+                if(count > 2000) {
                     console.log("recognizeColor timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.sensorDetectColorTypeFlag = false;
@@ -2033,7 +2079,7 @@ class Scratch3MatataConBlocks {
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1000) {
+                if(count > 2000) {
                     console.log("isObstaclesAhead timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.obstaclesAheadFlag = false;
@@ -2052,12 +2098,13 @@ class Scratch3MatataConBlocks {
         const isBrightnessData = new Array();
         isBrightnessData.push(BLECommand.CMD_SENSOR_DETECT);
         isBrightnessData.push(SensorDetectCommand.LIGHT_DETECT);
+        isBrightnessData.push(0x01);
         this._peripheral.commandSyncFlag.BrightnessDetectFlag = true;
         this._peripheral.send(this._peripheral.packCommand(isBrightnessData));
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 1000) {
+                if(count > 2000) {
                     console.log("isBrightness timeout!");
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.BrightnessDetectFlag = false;
@@ -2066,6 +2113,81 @@ class Scratch3MatataConBlocks {
                 else if(this._peripheral.commandSyncFlag.BrightnessDetectFlag == false) {
                     clearInterval(interval);
                     resolve(this._peripheral.brightness_flag);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    getPitchAngle(args) {
+        const getPitchAngleData = new Array();
+        getPitchAngleData.push(BLECommand.CMD_GET_SENSOR_VALUE);
+        getPitchAngleData.push(GetSensorValueCommand.MOTION_SENSOR);
+        getPitchAngleData.push(0x05);  //pitch
+        this._peripheral.commandSyncFlag.GetMotionPitchFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(getPitchAngleData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 2000) {
+                    console.log("getPitchAngle timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.GetMotionPitchFlag = false;
+                    resolve(this._peripheral.pitch);
+                }
+                else if(this._peripheral.commandSyncFlag.GetMotionPitchFlag == false) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.pitch);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    getRollAngle(args) {
+        const getRollAngleData = new Array();
+        getRollAngleData.push(BLECommand.CMD_GET_SENSOR_VALUE);
+        getRollAngleData.push(GetSensorValueCommand.MOTION_SENSOR);
+        getRollAngleData.push(0x04);  //roll
+        this._peripheral.commandSyncFlag.GetMotionRollFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(getRollAngleData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 2000) {
+                    console.log("getRollAngle timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.GetMotionRollFlag = false;
+                    resolve(this._peripheral.roll);
+                }
+                else if(this._peripheral.commandSyncFlag.GetMotionRollFlag == false) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.roll);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    getYawAngle(args) {
+        const getYawAngleData = new Array();
+        getYawAngleData.push(BLECommand.CMD_GET_SENSOR_VALUE);
+        getYawAngleData.push(GetSensorValueCommand.MOTION_SENSOR);
+        getYawAngleData.push(0x06);  //yaw
+        this._peripheral.commandSyncFlag.GetMotionYawFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(getYawAngleData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 2000) {
+                    console.log("getYawAngle timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.GetMotionYawFlag = false;
+                    resolve(this._peripheral.yaw);
+                }
+                else if(this._peripheral.commandSyncFlag.GetMotionYawFlag == false) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.yaw);
                 }
                 count += 10;
             }, 10);
