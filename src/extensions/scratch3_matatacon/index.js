@@ -141,12 +141,22 @@ class MatataCon {
             waitIRmessageFlag: false,
             sensorDetectMotionStatusFlag: false,
             sensorDetectColorTypeFlag: false,
-            eventDetectFlag: false,
+            buttonEventDetectFlag: false,
+            motionEventDetectFlag: false,
+            soundEventDetectFlag: false,
             obstaclesAheadFlag: false,
-            BrightnessDetectFlag: false,
-            GetMotionPitchFlag: false,
-            GetMotionRollFlag: false,
-            GetMotionYawFlag: false,
+            brightnessDetectFlag: false,
+            getMotionPitchFlag: false,
+            getMotionRollFlag: false,
+            getMotionYawFlag: false,
+            getShakingStrengthFlag: false,
+            getAmbientLightIntensityFlag: false,
+            getRGBColorRedFlag: false,
+            getRGBColorGreenFlag: false,
+            getRGBColorBlueFlag: false, 
+            getAccelerationXFlag: false,
+            getAccelerationYFlag: false,
+            getAccelerationZFlag: false,
             setNewProtocolFlag: false,
         };
         
@@ -162,7 +172,14 @@ class MatataCon {
         this.pitch = 0;
         this.roll = 0;
         this.yaw = 0;
-
+        this.shaking_strength = 0;
+        this.ambient_light_intensity = 0;
+        this.color_red = 0;
+        this.color_green = 0;
+        this.color_blue = 0;
+        this.acc_x = 0;
+        this.acc_y = 0;
+        this.acc_z = 0;
 
         this.reset = this.reset.bind(this);
         this._onConnect = this._onConnect.bind(this);
@@ -335,10 +352,10 @@ class MatataCon {
                 }
             }
         }
-        //console.log(this._receivedCommand);
+        console.log(this._receivedCommand);
         if (this._receivedCommand.length > 3) {
             this._receivedCommandLength = this._receivedCommand[1] & 0xff;
-            console.log(this._receivedCommandLength);
+            // console.log(this._receivedCommandLength);
         }
         if (this._receivedCommand.length >= this._receivedCommandLength + 2) {
             this.parseCommand();
@@ -359,9 +376,6 @@ class MatataCon {
     clearCommandSyncFlag() {
          if (this.commandSyncFlag.lightRingEffectFlag == true) {
              this.commandSyncFlag.lightRingEffectFlag = false;
-         }
-         if (this.commandSyncFlag.eventDetectFlag == true) {
-             this.commandSyncFlag.eventDetectFlag = false;
          }
          if (this.commandSyncFlag.lightRingLedSingleSet1Flag == true) {
              this.commandSyncFlag.lightRingLedSingleSet1Flag = false;
@@ -414,7 +428,7 @@ class MatataCon {
             case BLECommand.CMD_SENSOR_DETECT: {
                 console.log("receive sensor detect rsp(%d)!", command_data[3]);
                 if(command_data[2] == SensorDetectCommand.MOTION_STATUS_DETECT) {
-                    if(command_data[3] == 1) {
+                    if(command_data[4] == 1) {
                         this.motion_status_match = true;
                     } else {
                         this.motion_status_match = false;
@@ -448,35 +462,78 @@ class MatataCon {
                     } else {
                         this.brightness_flag = false;
                     }
-                    this.commandSyncFlag.BrightnessDetectFlag = false;
+                    this.commandSyncFlag.brightnessDetectFlag = false;
                 }
                 break;
             }
             case BLECommand.CMD_GET_SENSOR_VALUE: {
                 console.log("get sensor value");
                 if(command_data[2] == GetSensorValueCommand.MOTION_SENSOR) {
-                    if(command_data[3] == 0x05) {
-                        this.pitch = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
-                        this.commandSyncFlag.GetMotionPitchFlag = false;
-                        console.log("pitch = " + this.pitch);
-                    }
-                    if (command_data[3] == 0x04) {
+                    if (command_data[3] == 0x01) {
+                        this.acc_x = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
+                        this.commandSyncFlag.getAccelerationXFlag = false;
+                        console.log("acc_x = " + this.acc_x);
+                    } else if (command_data[3] == 0x02) {
+                        this.acc_y = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
+                        this.commandSyncFlag.getAccelerationYFlag = false;
+                        console.log("acc_y = " + this.acc_y);
+                    } else if (command_data[3] == 0x03) {
+                        this.acc_z = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
+                        this.commandSyncFlag.getAccelerationZFlag = false;
+                        console.log("acc_z = " + this.acc_z);
+                    } else if (command_data[3] == 0x04) {
                         this.roll = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
-                        this.commandSyncFlag.GetMotionRollFlag = false;
+                        this.commandSyncFlag.getMotionRollFlag = false;
                         console.log("roll = " + this.roll);
-                    }
-                    if (command_data[3] == 0x06) {
+                    } else if (command_data[3] == 0x05) {
+                        this.pitch = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
+                        this.commandSyncFlag.getMotionPitchFlag = false;
+                        console.log("pitch = " + this.pitch);
+                    } else if (command_data[3] == 0x06) {
                         this.yaw = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
-                        this.commandSyncFlag.GetMotionYawFlag = false;
+                        this.commandSyncFlag.getMotionYawFlag = false;
                         console.log("yaw = " + this.yaw);
+                    } else if (command_data[3] == 0x07) {
+                        this.shaking_strength = this.getFloat(command_data[4], command_data[5], command_data[6], command_data[7]);
+                        this.commandSyncFlag.getShakingStrengthFlag = false;
+                        console.log("shaking_strength = " + this.shaking_strength);
+                    }
+                } else if (command_data[2] == GetSensorValueCommand.LIGHT_SENSOR) {
+                    if(command_data[3] == 0x04) {
+                        this.ambient_light_intensity = command_data[4];
+                        this.commandSyncFlag.getAmbientLightIntensityFlag = false;
+                        console.log("ambient_light_intensity = " + this.ambient_light_intensity);
+                    } else if (command_data[3] == 0x01) {
+                        this.color_red = command_data[4];
+                        this.commandSyncFlag.getRGBColorRedFlag = false;
+                        console.log("color_red = " + this.color_red);
+                    } else if (command_data[3] == 0x02) {
+                        this.color_green = command_data[4];
+                        this.commandSyncFlag.getRGBColorGreenFlag = false;
+                        console.log("color_green = " + this.color_green);
+                    } else if (command_data[3] == 0x03) {
+                        this.color_blue = command_data[4];
+                        this.commandSyncFlag.getRGBColorBlueFlag = false;
+                        console.log("color_blue = " + this.color_blue);
                     }
                 }
                 break;
             }
             case BLECommand.CMD_EVENT_DETECT: {
-                console.log("get event response");
-                console.log(command_data[2], command_data[3], command_data[4]);
-                this.eventDetectDataFill(command_data[2], command_data[3], command_data[4]);
+                if(command_data[2] == 0x00) {
+                    console.log("get event response"); 
+                    // console.log(command_data[2], command_data[3], command_data[4]);
+                    this.eventDetectDataFill(command_data[3], command_data[4], command_data[5]);
+                } else if (command_data[2] == 0x01) {
+                    console.log("set button Event Detect response");
+                    this.commandSyncFlag.buttonEventDetectFlag = false;
+                } else if (command_data[2] == 0x02) {
+                    console.log("set motion Event Detect response");
+                    this.commandSyncFlag.motionEventDetectFlag = false;
+                } else if (command_data[2] == 0x03) {
+                    console.log("set sound Event Detect response");
+                    this.commandSyncFlag.soundEventDetectFlag = false;
+                }
                 break;
             }
             case BLECommand.CMD_SET_NEW_PROTOCOL: {
@@ -537,23 +594,71 @@ class MatataCon {
         });
     }
 
-    setEventMonitor (event, enable) {
-        const setEventMonitorData = new Array();
-        setEventMonitorData.push(BLECommand.CMD_EVENT_DETECT);
-        setEventMonitorData.push(event);
-        setEventMonitorData.push(enable);
-        this.commandSyncFlag.eventDetectFlag = true;
-        this.send(this.packCommand(setEventMonitorData));
+    setButtonEventMonitor (enable) {
+        const setButtonEventMonitorData = new Array();
+        setButtonEventMonitorData.push(BLECommand.CMD_EVENT_DETECT);
+        setButtonEventMonitorData.push(0x01);
+        setButtonEventMonitorData.push(enable);
+        this.commandSyncFlag.buttonEventDetectFlag = true;
+        this.send(this.packCommand(setButtonEventMonitorData));
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 2000) {
-                    console.log("setEventMonitor timeout!");
+                if(count > 1000) {
+                    console.log("setButtonEventMonitor timeout!");
                     clearInterval(interval);
-                    this.commandSyncFlag.eventDetectFlag = false;
+                    this.commandSyncFlag.buttonEventDetectFlag = false;
                     resolve();
                 }
-                else if(this.commandSyncFlag.eventDetectFlag == false) {
+                else if(this.commandSyncFlag.buttonEventDetectFlag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    setMotionEventMonitor (enable) {
+        const setMotionEventMonitorData = new Array();
+        setMotionEventMonitorData.push(BLECommand.CMD_EVENT_DETECT);
+        setMotionEventMonitorData.push(0x02);
+        setMotionEventMonitorData.push(enable);
+        this.commandSyncFlag.motionEventDetectFlag = true;
+        this.send(this.packCommand(setMotionEventMonitorData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("setMotionEventMonitor timeout!");
+                    clearInterval(interval);
+                    this.commandSyncFlag.motionEventDetectFlag = false;
+                    resolve();
+                } else if (this.commandSyncFlag.motionEventDetectFlag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    setSoundEventMonitor (enable) {
+        const setSoundEventMonitorData = new Array();
+        setSoundEventMonitorData.push(BLECommand.CMD_EVENT_DETECT);
+        setSoundEventMonitorData.push(0x03);
+        setSoundEventMonitorData.push(enable);
+        this.commandSyncFlag.soundEventDetectFlag = true;
+        this.send(this.packCommand(setSoundEventMonitorData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log("setSoundEventMonitor timeout!");
+                    clearInterval(interval);
+                    this.commandSyncFlag.soundEventDetectFlag = false;
+                    resolve();
+                } else if (this.commandSyncFlag.soundEventDetectFlag == false) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -570,15 +675,15 @@ class MatataCon {
         this._ble.read(BLEINFO.service, BLEINFO.rxChar, true, this._onMessage);
         this.setNewProtocol();
         setTimeout(()=> {
-            this.setEventMonitor(0x01, 0x01); 
+            this.setButtonEventMonitor(0x01);
         }, 4000);
 
         setTimeout(()=> {
-            this.setEventMonitor(0x02, 0x01); 
+            this.setMotionEventMonitor(0x01);
         }, 5000);
 
         setTimeout(()=> {
-            this.setEventMonitor(0x03, 0x01); 
+            this.setSoundEventMonitor(0x01);
         }, 6000);
     }
 
@@ -1733,8 +1838,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingLedSingleSet1Flag = false;
                     resolve();
-                }
-                else if(this._peripheral.commandSyncFlag.lightRingLedSingleSet1Flag == false) {
+                } else if (this._peripheral.commandSyncFlag.lightRingLedSingleSet1Flag == false) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -1770,8 +1874,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingLedSingleSet2Flag = false;
                     resolve();
-                }
-                else if(this._peripheral.commandSyncFlag.lightRingLedSingleSet2Flag == false) {
+                } else if (this._peripheral.commandSyncFlag.lightRingLedSingleSet2Flag == false) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -1806,8 +1909,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingLedSingleSet3Flag = false;
                     resolve();
-                }
-                else if(this._peripheral.commandSyncFlag.lightRingLedSingleSet3Flag == false) {
+                } else if (this._peripheral.commandSyncFlag.lightRingLedSingleSet3Flag == false) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -1846,8 +1948,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingEffectFlag = false;
                     resolve();
-                }
-                else if(this._peripheral.commandSyncFlag.lightRingEffectFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.lightRingEffectFlag == false) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -1856,7 +1957,7 @@ class Scratch3MatataConBlocks {
         });
     }
 
-    lightRingAllLedOff(args) {
+    lightRingAllLedOff() {
         const lightRingAllLedOffData = new Array();
         lightRingAllLedOffData.push(BLECommand.CMD_LIGHT_RING);
         lightRingAllLedOffData.push(LightRingCommand.ALL_LIGHT_RGB_COLOR);
@@ -1873,8 +1974,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.lightRingAllLedOffFlag = false;
                     resolve();
-                }
-                else if(this._peripheral.commandSyncFlag.lightRingAllLedOffFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.lightRingAllLedOffFlag == false) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -1915,8 +2015,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.sendIRmessageFlag = false;
                     resolve();
-                }
-                else if(this._peripheral.commandSyncFlag.sendIRmessageFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.sendIRmessageFlag == false) {
                     clearInterval(interval);
                     resolve();
                 }
@@ -1958,8 +2057,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.waitIRmessageFlag = false;
                     resolve();
-                }
-                else if(this._peripheral.commandSyncFlag.waitIRmessageFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.waitIRmessageFlag == false) {
                     console.log("waitIRMessage success!");
                     clearInterval(interval);
                     resolve();
@@ -2056,8 +2154,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.sensorDetectColorTypeFlag = false;
                     resolve(false);
-                }
-                else if(this._peripheral.commandSyncFlag.sensorDetectColorTypeFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.sensorDetectColorTypeFlag == false) {
                     clearInterval(interval);
                     resolve(this._peripheral.color_type_match);
                 }
@@ -2066,11 +2163,11 @@ class Scratch3MatataConBlocks {
         });
     }
 
-    isHearSomething(args) {
+    isHearSomething() {
         return this._peripheral.sound_flag;
     }
 
-    isObstaclesAhead(args) {
+    isObstaclesAhead() {
         const isObstaclesAheadData = new Array();
         isObstaclesAheadData.push(BLECommand.CMD_SENSOR_DETECT);
         isObstaclesAheadData.push(SensorDetectCommand.OBSTACLE_DETECT);
@@ -2084,8 +2181,7 @@ class Scratch3MatataConBlocks {
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.obstaclesAheadFlag = false;
                     resolve(false);
-                }
-                else if(this._peripheral.commandSyncFlag.obstaclesAheadFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.obstaclesAheadFlag == false) {
                     clearInterval(interval);
                     resolve(this._peripheral.obstacles_ahead_flag);
                 }
@@ -2094,12 +2190,12 @@ class Scratch3MatataConBlocks {
         });
     }
 
-    isBrightness(args) {
+    isBrightness() {
         const isBrightnessData = new Array();
         isBrightnessData.push(BLECommand.CMD_SENSOR_DETECT);
         isBrightnessData.push(SensorDetectCommand.LIGHT_DETECT);
         isBrightnessData.push(0x01);
-        this._peripheral.commandSyncFlag.BrightnessDetectFlag = true;
+        this._peripheral.commandSyncFlag.brightnessDetectFlag = true;
         this._peripheral.send(this._peripheral.packCommand(isBrightnessData));
         return new Promise(resolve => {
             let count = 0;
@@ -2107,10 +2203,9 @@ class Scratch3MatataConBlocks {
                 if(count > 2000) {
                     console.log("isBrightness timeout!");
                     clearInterval(interval);
-                    this._peripheral.commandSyncFlag.BrightnessDetectFlag = false;
+                    this._peripheral.commandSyncFlag.brightnessDetectFlag = false;
                     resolve(false);
-                }
-                else if(this._peripheral.commandSyncFlag.BrightnessDetectFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.brightnessDetectFlag == false) {
                     clearInterval(interval);
                     resolve(this._peripheral.brightness_flag);
                 }
@@ -2119,12 +2214,12 @@ class Scratch3MatataConBlocks {
         });
     }
 
-    getPitchAngle(args) {
+    getPitchAngle() {
         const getPitchAngleData = new Array();
         getPitchAngleData.push(BLECommand.CMD_GET_SENSOR_VALUE);
         getPitchAngleData.push(GetSensorValueCommand.MOTION_SENSOR);
         getPitchAngleData.push(0x05);  //pitch
-        this._peripheral.commandSyncFlag.GetMotionPitchFlag = true;
+        this._peripheral.commandSyncFlag.getMotionPitchFlag = true;
         this._peripheral.send(this._peripheral.packCommand(getPitchAngleData));
         return new Promise(resolve => {
             let count = 0;
@@ -2132,10 +2227,9 @@ class Scratch3MatataConBlocks {
                 if(count > 2000) {
                     console.log("getPitchAngle timeout!");
                     clearInterval(interval);
-                    this._peripheral.commandSyncFlag.GetMotionPitchFlag = false;
+                    this._peripheral.commandSyncFlag.getMotionPitchFlag = false;
                     resolve(this._peripheral.pitch);
-                }
-                else if(this._peripheral.commandSyncFlag.GetMotionPitchFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.getMotionPitchFlag == false) {
                     clearInterval(interval);
                     resolve(this._peripheral.pitch);
                 }
@@ -2144,12 +2238,12 @@ class Scratch3MatataConBlocks {
         });
     }
 
-    getRollAngle(args) {
+    getRollAngle() {
         const getRollAngleData = new Array();
         getRollAngleData.push(BLECommand.CMD_GET_SENSOR_VALUE);
         getRollAngleData.push(GetSensorValueCommand.MOTION_SENSOR);
         getRollAngleData.push(0x04);  //roll
-        this._peripheral.commandSyncFlag.GetMotionRollFlag = true;
+        this._peripheral.commandSyncFlag.getMotionRollFlag = true;
         this._peripheral.send(this._peripheral.packCommand(getRollAngleData));
         return new Promise(resolve => {
             let count = 0;
@@ -2157,10 +2251,9 @@ class Scratch3MatataConBlocks {
                 if(count > 2000) {
                     console.log("getRollAngle timeout!");
                     clearInterval(interval);
-                    this._peripheral.commandSyncFlag.GetMotionRollFlag = false;
+                    this._peripheral.commandSyncFlag.getMotionRollFlag = false;
                     resolve(this._peripheral.roll);
-                }
-                else if(this._peripheral.commandSyncFlag.GetMotionRollFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.getMotionRollFlag == false) {
                     clearInterval(interval);
                     resolve(this._peripheral.roll);
                 }
@@ -2169,12 +2262,12 @@ class Scratch3MatataConBlocks {
         });
     }
 
-    getYawAngle(args) {
+    getYawAngle() {
         const getYawAngleData = new Array();
         getYawAngleData.push(BLECommand.CMD_GET_SENSOR_VALUE);
         getYawAngleData.push(GetSensorValueCommand.MOTION_SENSOR);
         getYawAngleData.push(0x06);  //yaw
-        this._peripheral.commandSyncFlag.GetMotionYawFlag = true;
+        this._peripheral.commandSyncFlag.getMotionYawFlag = true;
         this._peripheral.send(this._peripheral.packCommand(getYawAngleData));
         return new Promise(resolve => {
             let count = 0;
@@ -2182,16 +2275,214 @@ class Scratch3MatataConBlocks {
                 if(count > 2000) {
                     console.log("getYawAngle timeout!");
                     clearInterval(interval);
-                    this._peripheral.commandSyncFlag.GetMotionYawFlag = false;
+                    this._peripheral.commandSyncFlag.getMotionYawFlag = false;
                     resolve(this._peripheral.yaw);
-                }
-                else if(this._peripheral.commandSyncFlag.GetMotionYawFlag == false) {
+                } else if (this._peripheral.commandSyncFlag.getMotionYawFlag == false) {
                     clearInterval(interval);
                     resolve(this._peripheral.yaw);
                 }
                 count += 10;
             }, 10);
         });
+    }
+
+    getShakingStrength() {
+        const getShakingStrengthData = new Array();
+        getShakingStrengthData.push(BLECommand.CMD_GET_SENSOR_VALUE);
+        getShakingStrengthData.push(GetSensorValueCommand.MOTION_SENSOR);
+        getShakingStrengthData.push(0x07);  //Shaking Strength
+        this._peripheral.commandSyncFlag.getShakingStrengthFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(getShakingStrengthData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 2000) {
+                    console.log("getShakingStrength timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.getShakingStrengthFlag = false;
+                    this._peripheral.shaking_strength = 0;
+                    resolve(this._peripheral.shaking_strength);
+                } else if (this._peripheral.commandSyncFlag.getShakingStrengthFlag == false) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.shaking_strength);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    getAmbientLightIntensity() {
+        const getAmbientLightIntensityData = new Array();
+        getAmbientLightIntensityData.push(BLECommand.CMD_GET_SENSOR_VALUE);
+        getAmbientLightIntensityData.push(GetSensorValueCommand.LIGHT_SENSOR);
+        getAmbientLightIntensityData.push(0x04);  //light sensor
+        this._peripheral.commandSyncFlag.getAmbientLightIntensityFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(getAmbientLightIntensityData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 2000) {
+                    console.log("getAmbientLightIntensity timeout!");
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.getAmbientLightIntensityFlag = false;
+                    resolve(this._peripheral.ambient_light_intensity);
+                } else if (this._peripheral.commandSyncFlag.getAmbientLightIntensityFlag == false) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.ambient_light_intensity);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    getRGBColor(args) {
+        let color_channel = 0x01;
+        const getRGBColorData = new Array();
+        if (args.COLOR_CHANNEL == ColorChannelMenu.RED) {
+            color_channel = 0x01;
+            this._peripheral.commandSyncFlag.getRGBColorRedFlag = true;
+        } else if (args.COLOR_CHANNEL == ColorChannelMenu.GREEN) {
+            color_channel = 0x02;
+            this._peripheral.commandSyncFlag.getRGBColorGreenFlag = true;
+        } else if (args.COLOR_CHANNEL == ColorChannelMenu.BLUE) {
+            color_channel = 0x03;
+            this._peripheral.commandSyncFlag.getRGBColorBlueFlag = true;
+        }
+        getRGBColorData.push(BLECommand.CMD_GET_SENSOR_VALUE);
+        getRGBColorData.push(GetSensorValueCommand.LIGHT_SENSOR);
+        getRGBColorData.push(color_channel);  //color sensor
+        this._peripheral.send(this._peripheral.packCommand(getRGBColorData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 2000) {
+                    console.log("getRGBColor timeout!");
+                    clearInterval(interval);
+                    if (color_channel == 0x01) {
+                        this._peripheral.commandSyncFlag.getRGBColorRedFlag = false;
+                        resolve(this._peripheral.color_red);
+                    } else if (color_channel == 0x02) {
+                        this._peripheral.commandSyncFlag.getRGBColorGreenFlag = false;
+                        resolve(this._peripheral.color_green);
+                    } else if (color_channel == 0x03) {
+                        this._peripheral.commandSyncFlag.getRGBColorBlueFlag = false;
+                        resolve(this._peripheral.color_blue);
+                    }
+                } else if ((color_channel == 0x01) && (this._peripheral.commandSyncFlag.getRGBColorRedFlag == false)) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.color_red);
+                } else if ((color_channel == 0x02) && (this._peripheral.commandSyncFlag.getRGBColorGreenFlag == false)) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.color_green);
+                } else if ((color_channel == 0x03) && (this._peripheral.commandSyncFlag.getRGBColorBlueFlag == false)) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.color_blue);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    getAcceleration(args) {
+        let axis_value = 0x01;
+        const getAccelerationData = new Array();
+        if (args.AXIS_VALUE == AxisValueMenu.X) {
+            axis_value = 0x01;
+            this._peripheral.commandSyncFlag.getAccelerationXFlag = true;
+        } else if (args.AXIS_VALUE == AxisValueMenu.Y) {
+            axis_value = 0x02;
+            this._peripheral.commandSyncFlag.getAccelerationYFlag = true;
+        } else if (args.AXIS_VALUE == AxisValueMenu.Z) {
+            axis_value = 0x03;
+            this._peripheral.commandSyncFlag.getAccelerationZFlag = true;
+        }
+        getAccelerationData.push(BLECommand.CMD_GET_SENSOR_VALUE);
+        getAccelerationData.push(GetSensorValueCommand.MOTION_SENSOR);
+        getAccelerationData.push(axis_value);  //axis value
+        this._peripheral.send(this._peripheral.packCommand(getAccelerationData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 2000) {
+                    console.log("getAcceleration timeout!");
+                    clearInterval(interval);
+                    if (axis_value == 0x01) {
+                        this._peripheral.commandSyncFlag.getAccelerationXFlag = false;
+                        resolve(this._peripheral.acc_x);
+                    } else if (axis_value == 0x02) {
+                        this._peripheral.commandSyncFlag.getAccelerationYFlag = false;
+                        resolve(this._peripheral.acc_y);
+                    } else if (axis_value == 0x03) {
+                        this._peripheral.commandSyncFlag.getAccelerationZFlag = false;
+                        resolve(this._peripheral.acc_z);
+                    }
+                } else if ((axis_value == 0x01) && (this._peripheral.commandSyncFlag.getAccelerationXFlag == false)) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.acc_x);
+                } else if ((axis_value == 0x02) && (this._peripheral.commandSyncFlag.getAccelerationYFlag == false)) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.acc_y);
+                } else if ((axis_value == 0x03) && (this._peripheral.commandSyncFlag.getAccelerationZFlag == false)) {
+                    clearInterval(interval);
+                    resolve(this._peripheral.acc_z);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    whenButtonPressed(args) {
+        let key_value = KeyValue.KEY_PLAY;
+        if (args.BUTTON_KEY == ButtonKeyMenu.PLAY) {
+            key_value = KeyValue.KEY_PLAY;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.DELETE) {
+            key_value = KeyValue.KEY_DELETE;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.MUSIC) {
+            key_value = KeyValue.KEY_MUSIC;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.FORWARD) {
+            key_value = KeyValue.KEY_FORWARD;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.BACKWARD) {
+            key_value = KeyValue.KEY_BACKWARD;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.LEFT) {
+            key_value = KeyValue.KEY_LEFT;
+        } else if (args.BUTTON_KEY == ButtonKeyMenu.BACK) {
+            key_value = KeyValue.KEY_RIGHT;
+        }
+        if(key_value == (this._peripheral.key_value & key_value)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    whenAttitudeChangeTo(args) {
+        let title_status = MotionTitle.TITLE_SHAKEN;
+        if (args.MOTION_STATUS == MotinStatusMenu.SHAKEN) {
+            title_status = MotionTitle.TITLE_SHAKEN;
+        } else if (args.MOTION_STATUS == MotinStatusMenu.UP) {
+            title_status = MotionTitle.TITLE_UP;
+        } else if (args.MOTION_STATUS == MotinStatusMenu.DOWN) {
+            title_status = MotionTitle.TITLE_DOWN;
+        } else if (args.MOTION_STATUS == MotinStatusMenu.LEFT) {
+            title_status = MotionTitle.TITLE_LEFT;
+        } else if (args.MOTION_STATUS == MotinStatusMenu.RIGHT) {
+            title_status = MotionTitle.TITLE_RIGHT;
+        } else if (args.MOTION_STATUS == MotinStatusMenu.FRONT) {
+            title_status = MotionTitle.TITLE_FRONT;
+        } else if (args.MOTION_STATUS == MotinStatusMenu.BACK) {
+            title_status = MotionTitle.TITLE_BACK;
+        } else if (args.MOTION_STATUS == MotinStatusMenu.FREE_FALL) {
+            title_status = MotionTitle.TITLE_FREE_FALL;
+        }
+        if(title_status == (this._peripheral.motion_title_status & title_status)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    whenHearSomething() {
+        return this._peripheral.sound_flag;
     }
 }
 
