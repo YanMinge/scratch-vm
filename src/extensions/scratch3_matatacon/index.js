@@ -197,7 +197,9 @@ class MatataCon {
         }
         this._ble = new BLE(this._runtime, this._extensionId, {
             filters: [
-                {name: BLEINFO.name},
+                //{name: BLEINFO.name},
+                {namePrefix: BLEINFO.name},
+                //{services: [BLEINFO.service]},
             ],
             optionalServices: [BLEINFO.service]
         }, this._onConnect, this.reset);
