@@ -50,7 +50,8 @@ const BLEINFO = {
     service:'6e400001-b5a3-f393-e0a9-e50e24dcca9e',
     rxChar: '6e400003-b5a3-f393-e0a9-e50e24dcca9e',
     txChar: '6e400002-b5a3-f393-e0a9-e50e24dcca9e',
-    name: 'MatataBot'
+    name: 'MatataBot',
+    namePrefix: 'MatataBot'
 };
 
 /**
@@ -115,6 +116,7 @@ class MatataBot {
         this.commandSyncFlag = {
             motionForwardStepFlag: false,
             motionBackwardStepFlag: false,
+            setNewProtocolFlag: false,
         };
 
 
@@ -134,9 +136,11 @@ class MatataBot {
         }
         this._ble = new BLE(this._runtime, this._extensionId, {
             filters: [
-                {name: BLEINFO.name},
+                {services: [BLEINFO.service]},
+                {namePrefix: BLEINFO.namePrefix}
+                //{name: BLEINFO.name},
             ],
-            optionalServices: [BLEINFO.service]
+            //optionalServices: [BLEINFO.service]
         }, this._onConnect, this.reset);
     }
 
@@ -208,7 +212,7 @@ class MatataBot {
         }
         const data = Base64Util.uint8ArrayToBase64(output);
 
-        this._ble.write(BLEINFO.service, BLEINFO.txChar, data, 'base64', true).then(
+        this._ble.write(BLEINFO.service, BLEINFO.txChar, data, 'base64', false).then(
             () => {
                 this._busy = false;
                 window.clearTimeout(this._busyTimeoutID);
@@ -292,7 +296,7 @@ class MatataBot {
         console.log(this._receivedCommand);
         if (this._receivedCommand.length > 3) {
             this._receivedCommandLength = this._receivedCommand[1] & 0xff;
-            console.log(this._receivedCommandLength);
+            // console.log(this._receivedCommandLength);
         }
         if (this._receivedCommand.length >= this._receivedCommandLength + 2) {
             this.parseCommand();
@@ -328,29 +332,34 @@ class MatataBot {
         }
         let command_data = this._receivedCommand.slice(1, this._receivedCommandLength);
         switch(command_data[1]) {
-            case BLECommand.CMD_GENERAL_RSP:{
+            case BLECommand.CMD_SET_NEW_PROTOCOL: {
+                console.log("set new protocol response!");
+                this.commandSyncFlag.setNewProtocolFlag = false;
+                break;
+            }
+            case BLECommand.CMD_GENERAL_RSP: {
                 console.log("get general response!");
                 this.clearCommandSyncFlag();
                 break;
             }
-            case BLECommand.CMD_HEARTBEAT:{
+            case BLECommand.CMD_HEARTBEAT: {
                 let device = null;
                 if (command_data[2] == 0x02) {
                     device = "MatataCon";
                 } else {
                     device = "MatataBot";
                 }
-                console.log("get %s heartbeat", device);
+                //console.log("get %s heartbeat", device);
                 break;
             }
-            default:{
+            default: {
                 break;
             }
-
         }
 
         this._receivedCommand = this._receivedCommand.slice(this._receivedCommandLength + 2)
         this._receivedCommandLength = 0;
+        this._receivedCommandStart = false;
     }
 
     setNewProtocol () {
@@ -360,7 +369,25 @@ class MatataBot {
         setNewProtocolData.push(0x02);
         setNewProtocolData.push(0x00);
         setNewProtocolData.push(0x00);
+        this.commandSyncFlag.setNewProtocolFlag = true;
         this.send(this.packCommand(setNewProtocolData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 4000) {
+                    console.log("setNewProtocol timeout!");
+                    clearInterval(interval);
+                    this.commandSyncFlag.setNewProtocolFlag = false;
+                    this.disconnect();
+                    resolve();
+                }
+                else if(this.commandSyncFlag.setNewProtocolFlag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 100;
+            }, 100);
+        });
     }
 
     /**
@@ -368,7 +395,8 @@ class MatataBot {
      * @private
      */
     _onConnect () {
-        this._ble.read(BLEINFO.service, BLEINFO.rxChar, true, this._onMessage);
+        //this._ble.read(BLEINFO.service, BLEINFO.rxChar, true, this._onMessage);
+        this._ble.startNotifications(BLEINFO.service, BLEINFO.rxChar, this._onMessage);
         this.setNewProtocol();
     }
 
@@ -380,8 +408,8 @@ class MatataBot {
     _onMessage (base64) {
         // parse data
         const dataReceived = Base64Util.base64ToUint8Array(base64);
-        console.log("matataBot recv:");
-        console.log(dataReceived);
+        // console.log("matataCon recv:");
+        // console.log(dataReceived);
         this.depackCommand(dataReceived);
     }
 }

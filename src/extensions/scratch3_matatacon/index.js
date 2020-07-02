@@ -69,7 +69,8 @@ const BLEINFO = {
     service:'6e400001-b5a3-f393-e0a9-e50e24dcca9e',
     rxChar: '6e400003-b5a3-f393-e0a9-e50e24dcca9e',
     txChar: '6e400002-b5a3-f393-e0a9-e50e24dcca9e',
-    name: 'MatataCon'
+    name: 'MatataCon',
+    namePrefix: 'MatataCon'
 };
 
 /**
@@ -197,11 +198,11 @@ class MatataCon {
         }
         this._ble = new BLE(this._runtime, this._extensionId, {
             filters: [
+                {services: [BLEINFO.service]},
+                {namePrefix: BLEINFO.namePrefix}
                 //{name: BLEINFO.name},
-                {namePrefix: BLEINFO.name},
-                //{services: [BLEINFO.service]},
             ],
-            optionalServices: [BLEINFO.service]
+            //optionalServices: [BLEINFO.service]
         }, this._onConnect, this.reset);
     }
 
@@ -273,7 +274,7 @@ class MatataCon {
         }
         const data = Base64Util.uint8ArrayToBase64(output);
 
-        this._ble.write(BLEINFO.service, BLEINFO.txChar, data, 'base64', true).then(
+        this._ble.write(BLEINFO.service, BLEINFO.txChar, data, 'base64', false).then(
             () => {
                 this._busy = false;
                 window.clearTimeout(this._busyTimeoutID);
@@ -674,7 +675,8 @@ class MatataCon {
      * @private
      */
     _onConnect () {
-        this._ble.read(BLEINFO.service, BLEINFO.rxChar, true, this._onMessage);
+        //this._ble.read(BLEINFO.service, BLEINFO.rxChar, true, this._onMessage);
+        this._ble.startNotifications(BLEINFO.service, BLEINFO.rxChar, this._onMessage);
         this.setNewProtocol();
         setTimeout(()=> {
             this.setButtonEventMonitor(0x01);
