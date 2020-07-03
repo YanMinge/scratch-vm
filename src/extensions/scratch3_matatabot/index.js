@@ -18,6 +18,9 @@ const blockIconURI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYA
 const BLECommand = {
     CMD_MOVE_POS:         0x10,
     CMD_MOVE_SPEED:       0x11,
+    CMD_DANCE:            0x12,
+    CMD_ACTION:           0x13,
+    CMD_PLAY_TONE:        0x15,
     CMD_SET_NEW_PROTOCOL: 0x7e,
     CMD_HEARTBEAT:        0x87,
     CMD_GENERAL_RSP:      0x88,
@@ -130,7 +133,11 @@ class MatataBot {
             motionWhirlFlag: false,
             motionWheelPowerFlag: false,
             motionWheelSpeedFlag: false,
-            motionStopMovingData: false,
+            motionStopMovingFlag: false,
+            doDanceFlag: false,
+            doActionFlag: false,
+            soundAltoFlag: false,
+            soundTrebleFlag: false,
             setNewProtocolFlag: false,
         };
 
@@ -353,8 +360,20 @@ class MatataBot {
         if (this.commandSyncFlag.motionWheelSpeedFlag === true) {
             this.commandSyncFlag.motionWheelSpeedFlag = false;
         }
-        if (this.commandSyncFlag.motionStopMovingData === true) {
-            this.commandSyncFlag.motionStopMovingData = false;
+        if (this.commandSyncFlag.motionStopMovingFlag === true) {
+            this.commandSyncFlag.motionStopMovingFlag = false;
+        }
+        if (this.commandSyncFlag.doDanceFlag === true) {
+            this.commandSyncFlag.doDanceFlag = false;
+        }
+        if (this.commandSyncFlag.doActionFlag === true) {
+            this.commandSyncFlag.doActionFlag = false;
+        }
+        if (this.commandSyncFlag.soundAltoFlag === true) {
+            this.commandSyncFlag.soundAltoFlag = false;
+        }
+        if (this.commandSyncFlag.soundTrebleFlag === true) {
+            this.commandSyncFlag.soundTrebleFlag = false;
         }
     }
 
@@ -529,18 +548,90 @@ const MotionWheelMenu = {
 };
 
 /**
- * Enum for motor order.
+ * Enum for dance index.
  * Note: if changed, will break compatibility with previously saved projects.
  * @readonly
  * @enum {string}
  */
-const MotionOrderMenu = {
-    order1: '1st',
-    order2: '2nd',
-    order3: '3rd',
-    order4: '4th',
-    order5: '5th',
-    order6: '6th'
+const DanceIndexMenu = {
+    NUM1: 'the 1st',
+    NUM2: 'the 2nd',
+    NUM3: 'the 3rd',
+    NUM4: 'the 4th',
+    NUM5: 'the 5th',
+    NUM6: 'the 6th',
+    ROLL_DICE: 'roll dice'
+};
+
+/**
+ * Enum for action index.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const ActionIndexMenu = {
+    NUM1: 'the 1st',
+    NUM2: 'the 2nd',
+    NUM3: 'the 3rd',
+    NUM4: 'the 4th',
+    NUM5: 'the 5th',
+    NUM6: 'the 6th',
+    ROLL_DICE: 'roll dice'
+};
+
+/**
+ * Enum for motor sound beat.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SoundBeatMenu = {
+    ONE_FOURTH:   '1/4',
+    TWO_FOURTH:   '2/4',
+    THREE_FOURTH: '3/4',
+    FOUR_FOURTH:  '4/4',
+    FIVE_FOURTH:  '5/4',
+    SIX_FOURTH:   '6/4',
+    ROLL_DICE:    'roll dice'
+};
+
+/**
+ * Enum for motor sound tone.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const SoundToneMenu = {
+    DO:  'do',
+    RE:  're',
+    MI:  'mi',
+    FA:  'fa',
+    SOL: 'sol',
+    LA:  'la',
+    TI:  'ti',
+};
+
+/**
+ * Enum for motor port names.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const noteFreq = {
+    C3:  131,
+    D3:  147,
+    E3:  165,
+    F3:  175,
+    G3:  196,
+    A3:  220,
+    B3:  247,
+    C4:  262,
+    D4:  294,
+    E4:  330,
+    F4:  349,
+    G4:  392,
+    A4:  440,
+    B4:  494,
 };
 
 /**
@@ -609,33 +700,6 @@ const LooksLightEffectMenu = {
     firefly: 'firefly',
     brush: 'brush',
     breath: 'breath'
-};
-
-/**
- * Enum for motor sound beat.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SoundBeatMenu = {
-    oneFourth: '1/4',
-    twoFourth: '2/4',
-    threeFourth: '3/4',
-    fourFourth: '4/4',
-    fiveFourth: '5/4',
-    sixFourth: '6/4'
-};
-
-/**
- * Enum for motor sound tone.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SoundToneMenu = {
-    do: 'do',
-    re: 're',
-    mi: 'mi'
 };
 
 /**
@@ -1027,7 +1091,7 @@ class Scratch3MatataBotBlocks {
                 value: MotionGearMenu.ROLL_DICE
             }
         ];
-    }    
+    }
 
     /**
      * @return {array} - text and values for each wheel menu element
@@ -1062,6 +1126,262 @@ class Scratch3MatataBotBlocks {
     }
 
     /**
+     * @return {array} - text and values for each dance element
+     */
+    get DANCE_INDEX_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.danceIndexMenu.num1',
+                    default: 'the 1st',
+                    description: 'label for matatabot dance 1'
+                }),
+                value: DanceIndexMenu.NUM1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.danceIndexMenu.num2',
+                    default: 'the 2nd',
+                    description: 'label for matatabot dance 2'
+                }),
+                value: DanceIndexMenu.NUM2
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.danceIndexMenu.num3',
+                    default: 'the 3rd',
+                    description: 'label for matatabot dance 3'
+                }),
+                value: DanceIndexMenu.NUM3
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.danceIndexMenu.num4',
+                    default: 'the 4th',
+                    description: 'label for matatabot dance 4'
+                }),
+                value: DanceIndexMenu.NUM4
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.danceIndexMenu.num5',
+                    default: 'the 5th',
+                    description: 'label for matatabot dance 5'
+                }),
+                value: DanceIndexMenu.NUM5
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.danceIndexMenu.num6',
+                    default: 'the 6th',
+                    description: 'label for matatabot dance 6'
+                }),
+                value: DanceIndexMenu.NUM6
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.danceIndexMenu.rollDice',
+                    default: 'roll dice',
+                    description: 'label for matatabot dance roll dice'
+                }),
+                value: DanceIndexMenu.ROLL_DICE
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each action element
+     */
+    get ACTION_INDEX_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.actionIndexMenu.num1',
+                    default: 'the 1st',
+                    description: 'label for matatabot dance 1'
+                }),
+                value: ActionIndexMenu.NUM1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.actionIndexMenu.num2',
+                    default: 'the 2nd',
+                    description: 'label for matatabot dance 2'
+                }),
+                value: ActionIndexMenu.NUM2
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.actionIndexMenu.num3',
+                    default: 'the 3rd',
+                    description: 'label for matatabot dance 3'
+                }),
+                value: ActionIndexMenu.NUM3
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.actionIndexMenu.num4',
+                    default: 'the 4th',
+                    description: 'label for matatabot dance 4'
+                }),
+                value: ActionIndexMenu.NUM4
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.actionIndexMenu.num5',
+                    default: 'the 5th',
+                    description: 'label for matatabot dance 5'
+                }),
+                value: ActionIndexMenu.NUM5
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.actionIndexMenu.num6',
+                    default: 'the 6th',
+                    description: 'label for matatabot dance 6'
+                }),
+                value: ActionIndexMenu.NUM6
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.actionIndexMenu.rollDice',
+                    default: 'roll dice',
+                    description: 'label for matatabot dance roll dice'
+                }),
+                value: ActionIndexMenu.ROLL_DICE
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each beat menu element
+     */
+    get SOUND_BEAT_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.oneFourth',
+                    default: '1/4',
+                    description: 'label for matatabot beats oneFourth'
+                }),
+                value: SoundBeatMenu.ONE_FOURTH
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.twoFourth',
+                    default: '2/4',
+                    description: 'label for matatabot beats twoFourth'
+                }),
+                value: SoundBeatMenu.TWO_FOURTH
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.threeFourth',
+                    default: '3/4',
+                    description: 'label for matatabot beats threeFourth'
+                }),
+                value: SoundBeatMenu.THREE_FOURTH
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.fourFourth',
+                    default: '4/4',
+                    description: 'label for matatabot beats fourFourth'
+                }),
+                value: SoundBeatMenu.FOUR_FOURTH
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.fiveFourth',
+                    default: '5/4',
+                    description: 'label for matatabot beats fiveFourth'
+                }),
+                value: SoundBeatMenu.FIVE_FOURTH
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.sixFourth',
+                    default: '6/4',
+                    description: 'label for matatabot beats sixFourth'
+                }),
+                value: SoundBeatMenu.SIX_FOURTH
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundBeat.rollDice',
+                    default: 'roll dice',
+                    description: 'label for matatabot beats roll dice'
+                }),
+                value: SoundBeatMenu.ROLL_DICE
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each tone menu element
+     */
+    get SOUND_TONE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.do',
+                    default: 'do',
+                    description: 'label for matatabot tone do'
+                }),
+                value: SoundToneMenu.DO
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.re',
+                    default: 're',
+                    description: 'label for matatabot tone re'
+                }),
+                value: SoundToneMenu.RE
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.mi',
+                    default: 'mi',
+                    description: 'label for matatabot tone mi'
+                }),
+                value: SoundToneMenu.MI
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.fa',
+                    default: 'fa',
+                    description: 'label for matatabot tone fa'
+                }),
+                value: SoundToneMenu.FA
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.sol',
+                    default: 'sol',
+                    description: 'label for matatabot tone sol'
+                }),
+                value: SoundToneMenu.SOL
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.la',
+                    default: 'la',
+                    description: 'label for matatabot beat la'
+                }),
+                value: SoundToneMenu.LA
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.soundTone.ti',
+                    default: 'ti',
+                    description: 'label for matatabot beat ti'
+                }),
+                value: SoundToneMenu.TI
+            }
+        ];
+    }
+
+    /**
      * @return {array} - text and values for each side menu element
      */
     get LOOKS_SIDE_MENU () {
@@ -1076,7 +1396,7 @@ class Scratch3MatataBotBlocks {
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.motionOrderMenu.right',
+                    id: 'matatabot.looksSideMenu.right',
                     default: 'right',
                     description: 'label for matatabot side right'
                 }),
@@ -1084,7 +1404,7 @@ class Scratch3MatataBotBlocks {
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.motionOrderMenu.all',
+                    id: 'matatabot.looksSideMenu.all',
                     default: 'all',
                     description: 'label for matatabot side all'
                 }),
@@ -1281,94 +1601,6 @@ class Scratch3MatataBotBlocks {
                     description: 'label for matatabot light effect breath'
                 }),
                 value: LooksLightEffectMenu.breath
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each beat menu element
-     */
-    get SOUND_BEAT_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundTone.oneFourth',
-                    default: '1/4',
-                    description: 'label for matatabot tone oneFourth'
-                }),
-                value: SoundBeatMenu.oneFourth
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundTone.twoFourth',
-                    default: '2/4',
-                    description: 'label for matatabot tone twoFourth'
-                }),
-                value: SoundBeatMenu.twoFourth
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundTone.threeFourth',
-                    default: '3/4',
-                    description: 'label for matatabot tone threeFourth'
-                }),
-                value: SoundBeatMenu.threeFourth
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundTone.fourFourth',
-                    default: '4/4',
-                    description: 'label for matatabot tone fourFourth'
-                }),
-                value: SoundBeatMenu.fourFourth
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundTone.fiveFourth',
-                    default: '5/4',
-                    description: 'label for matatabot tone fiveFourth'
-                }),
-                value: SoundBeatMenu.fiveFourth
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundTone.sixFourth',
-                    default: '6/4',
-                    description: 'label for matatabot tone sixFourth'
-                }),
-                value: SoundBeatMenu.sixFourth
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each tone menu element
-     */
-    get SOUND_TONE_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundBeat.do',
-                    default: 'do',
-                    description: 'label for matatabot beat do'
-                }),
-                value: SoundToneMenu.do
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundBeat.re',
-                    default: 're',
-                    description: 'label for matatabot beat re'
-                }),
-                value: SoundToneMenu.re
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundBeat.mi',
-                    default: 'mi',
-                    description: 'label for matatabot beat mi'
-                }),
-                value: SoundToneMenu.mi
             }
         ];
     }
@@ -1783,34 +2015,34 @@ class Scratch3MatataBotBlocks {
                     }
                 },
                 {
-                    opcode: 'motionDance',
+                    opcode: 'doDance',
                     text: formatMessage({
-                        id: 'matatabot.motionDance',
-                        default: '[ORDER] dance',
+                        id: 'matatabot.doDance',
+                        default: '[DANCE_INDEX] dance',
                         description: 'Dance'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
-                        ORDER: {
+                        DANCE_INDEX: {
                             type: ArgumentType.STRING,
-                            menu: 'motionOrder',
-                            defaultValue: MotionOrderMenu.first
+                            menu: 'danceIndex',
+                            defaultValue: DanceIndexMenu.NUM1
                         }
                     }
                 },
                 {
-                    opcode: 'motionAction',
+                    opcode: 'doAction',
                     text: formatMessage({
-                        id: 'matatabot.motionAction',
-                        default: '[ORDER] action',
+                        id: 'matatabot.doAction',
+                        default: '[ACTION_INDEX] action',
                         description: 'Action'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
-                        ORDER: {
+                        ACTION_INDEX: {
                             type: ArgumentType.STRING,
-                            menu: 'motionOrder',
-                            defaultValue: MotionOrderMenu.first
+                            menu: 'actionIndex',
+                            defaultValue: ActionIndexMenu.NUM1
                         }
                     }
                 },
@@ -1818,8 +2050,8 @@ class Scratch3MatataBotBlocks {
                     opcode: 'soundAlto',
                     text: formatMessage({
                         id: 'matatabot.soundAlto',
-                        default: 'play [BEAT] for [TONE] alto',
-                        description: 'play a beat sound'
+                        default: 'play alto [TONE] for [BEAT] beats',
+                        description: 'play a alto sound'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
@@ -1839,8 +2071,8 @@ class Scratch3MatataBotBlocks {
                     opcode: 'soundTreble',
                     text: formatMessage({
                         id: 'matatabot.soundTreble',
-                        default: 'play [BEAT] for [TONE] treble',
-                        description: 'play a beat sound'
+                        default: 'play treble [TONE] for [BEAT] beats',
+                        description: 'play a treble sound'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
@@ -1964,9 +2196,21 @@ class Scratch3MatataBotBlocks {
                     acceptReporters: true,
                     items: this.MOTION_WHEEL_MENU
                 },
-                looksSide: {
+                danceIndex: {
                     acceptReporters: true,
-                    items: this.LOOKS_SIDE_MENU
+                    items: this.DANCE_INDEX_MENU
+                },
+                actionIndex: {
+                    acceptReporters: true,
+                    items: this.ACTION_INDEX_MENU
+                },
+                soundBeat: {
+                    acceptReporters: true,
+                    items: this.SOUND_BEAT_MENU
+                },
+                soundTone: {
+                    acceptReporters: true,
+                    items: this.SOUND_TONE_MENU
                 },
                 looksColor: {
                     acceptReporters: true,
@@ -1983,14 +2227,6 @@ class Scratch3MatataBotBlocks {
                 looksLightEffect: {
                     acceptReporters: true,
                     items: this.LOOKS_LIGHT_EFFECT_MENU
-                },
-                soundBeat: {
-                    acceptReporters: true,
-                    items: this.SOUND_BEAT_MENU
-                },
-                soundTone: {
-                    acceptReporters: true,
-                    items: this.SOUND_TONE_MENU
                 },
                 soundSong: {
                     acceptReporters: true,
@@ -2031,7 +2267,6 @@ class Scratch3MatataBotBlocks {
             }
         };
     }
-
 
     rollDice () {
         return Math.floor(Math.random() * 6) + 1;
@@ -2398,14 +2633,14 @@ class Scratch3MatataBotBlocks {
             motionWheelPowerData.push(MoveSpeedCommand.MOTION_RIGHT);
             motionWheelPowerData.push(right_dir);
             motionWheelPowerData.push((speed_right & 0xff00) >> 8);
-            motionWheelPowerData.push(speed_right & 0x00ff);
+            motionWheelPowerData.push(speed_right & 0xff);
             this._peripheral.commandSyncFlag.motionWheelPowerFlag = true;
         } else if ((left_speed !== 0x08) && (right_speed === 0x08)) {
             motionWheelPowerData.push(BLECommand.CMD_MOVE_SPEED);
             motionWheelPowerData.push(MoveSpeedCommand.MOTION_LEFT);
             motionWheelPowerData.push(left_dir);
             motionWheelPowerData.push((speed_left & 0xff00) >> 8);
-            motionWheelPowerData.push(speed_left & 0x00ff);
+            motionWheelPowerData.push(speed_left & 0xff);
             this._peripheral.commandSyncFlag.motionWheelPowerFlag = true;
         } else if ((left_speed === 0x08) && (right_speed === 0x08)) {
             this._peripheral.commandSyncFlag.motionWheelPowerFlag = false;
@@ -2414,10 +2649,10 @@ class Scratch3MatataBotBlocks {
             motionWheelPowerData.push(MoveSpeedCommand.MOTION_BOTH);
             motionWheelPowerData.push(left_dir);
             motionWheelPowerData.push((speed_left & 0xff00) >> 8);
-            motionWheelPowerData.push(speed_left & 0x00ff);
+            motionWheelPowerData.push(speed_left & 0xff);
             motionWheelPowerData.push(right_dir);
             motionWheelPowerData.push((speed_right & 0xff00) >> 8);
-            motionWheelPowerData.push(speed_right & 0x00ff);
+            motionWheelPowerData.push(speed_right & 0xff);
             this._peripheral.commandSyncFlag.motionWheelPowerFlag = true;
         }
         this._peripheral.send(this._peripheral.packCommand(motionWheelPowerData));
@@ -2523,6 +2758,216 @@ class Scratch3MatataBotBlocks {
                     resolve();
                 }
                 if (this._peripheral.commandSyncFlag.motionStopMovingFlag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    doDance (args) {
+        const doDanceData = new Array();
+        let dance_index = 0x01;
+        if (args.DANCE_INDEX === DanceIndexMenu.NUM1) {
+            dance_index = 0x01;
+        } else if (args.DANCE_INDEX === DanceIndexMenu.NUM2) {
+            dance_index = 0x02;
+        } else if (args.DANCE_INDEX === DanceIndexMenu.NUM3) {
+            dance_index = 0x03;
+        } else if (args.DANCE_INDEX === DanceIndexMenu.NUM4) {
+            dance_index = 0x04;
+        } else if (args.DANCE_INDEX === DanceIndexMenu.NUM5) {
+            dance_index = 0x05;
+        } else if (args.DANCE_INDEX === DanceIndexMenu.NUM6) {
+            dance_index = 0x06;
+        } else if (args.DANCE_INDEX === DanceIndexMenu.ROLL_DICE) {
+            dance_index = this.rollDice();
+        }
+
+        doDanceData.push(BLECommand.CMD_DANCE);
+        doDanceData.push(dance_index);
+
+        this._peripheral.commandSyncFlag.doDanceFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(doDanceData));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 1000) {
+                    console.log('doDance timeout');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.doDanceFlag = false;
+                    resolve();
+                }
+                if (this._peripheral.commandSyncFlag.doDanceFlag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    doAction (args) {
+        const doActionData = new Array();
+        let action_index = 0x01;
+        if (args.ACTION_INDEX === ActionIndexMenu.NUM1) {
+            action_index = 0x01;
+        } else if (args.ACTION_INDEX === ActionIndexMenu.NUM2) {
+            action_index = 0x02;
+        } else if (args.ACTION_INDEX === ActionIndexMenu.NUM3) {
+            action_index = 0x03;
+        } else if (args.ACTION_INDEX === ActionIndexMenu.NUM4) {
+            action_index = 0x04;
+        } else if (args.ACTION_INDEX === ActionIndexMenu.NUM5) {
+            action_index = 0x05;
+        } else if (args.ACTION_INDEX === ActionIndexMenu.NUM6) {
+            action_index = 0x06;
+        } else if (args.ACTION_INDEX === ActionIndexMenu.ROLL_DICE) {
+            action_index = this.rollDice();
+        }
+
+        doActionData.push(BLECommand.CMD_ACTION);
+        doActionData.push(action_index);
+
+        this._peripheral.commandSyncFlag.doActionFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(doActionData));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 1000) {
+                    console.log('doAction timeout');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.doActionFlag = false;
+                    resolve();
+                }
+                if (this._peripheral.commandSyncFlag.doActionFlag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    soundAlto (args) {
+        const soundAltoData = new Array();
+        let tone_freq = noteFreq.C3;
+        let beat_time = 0x01;
+
+        if (args.TONE === SoundToneMenu.DO) {
+            tone_freq = noteFreq.C3;
+        } else if (args.TONE === SoundToneMenu.RE) {
+            tone_freq = noteFreq.D3;
+        } else if (args.TONE === SoundToneMenu.MI) {
+            tone_freq = noteFreq.E3;
+        } else if (args.TONE === SoundToneMenu.FA) {
+            tone_freq = noteFreq.F3;
+        } else if (args.TONE === SoundToneMenu.SOL) {
+            tone_freq = noteFreq.G3;
+        } else if (args.TONE === SoundToneMenu.LA) {
+            tone_freq = noteFreq.A3;
+        } else if (args.TONE === SoundToneMenu.TI) {
+            tone_freq = noteFreq.B3;
+        }
+
+        if (args.BEAT === SoundBeatMenu.ONE_FOURTH) {
+            beat_time = 0x01;
+        } else if (args.BEAT === SoundBeatMenu.TWO_FOURTH) {
+            beat_time = 0x02;
+        } else if (args.BEAT === SoundBeatMenu.THREE_FOURTH) {
+            beat_time = 0x03;
+        } else if (args.BEAT === SoundBeatMenu.FOUR_FOURTH) {
+            beat_time = 0x04;
+        } else if (args.BEAT === SoundBeatMenu.FIVE_FOURTH) {
+            beat_time = 0x05;
+        } else if (args.BEAT === SoundBeatMenu.SIX_FOURTH) {
+            beat_time = 0x06;
+        } else if (args.BEAT === SoundBeatMenu.ROLL_DICE) {
+            beat_time = this.rollDice();
+        }
+
+        soundAltoData.push(BLECommand.CMD_PLAY_TONE);
+        soundAltoData.push((tone_freq & 0xff00) >> 8);
+        soundAltoData.push(tone_freq & 0x00ff);
+        soundAltoData.push(((beat_time * 500) & 0xff00) >> 8);
+        soundAltoData.push((beat_time * 500) & 0xff);
+
+        this._peripheral.commandSyncFlag.soundAltoFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(soundAltoData));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > (beat_time * 500 + 100)) {
+                    console.log('soundAlto timeout');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.soundAltoFlag = false;
+                    resolve();
+                }
+                if (this._peripheral.commandSyncFlag.soundAltoFlag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    soundTreble (args) {
+        const soundAltoData = new Array();
+        let tone_freq = noteFreq.C4;
+        let beat_time = 0x01;
+
+        if (args.TONE === SoundToneMenu.DO) {
+            tone_freq = noteFreq.C4;
+        } else if (args.TONE === SoundToneMenu.RE) {
+            tone_freq = noteFreq.D4;
+        } else if (args.TONE === SoundToneMenu.MI) {
+            tone_freq = noteFreq.E4;
+        } else if (args.TONE === SoundToneMenu.FA) {
+            tone_freq = noteFreq.F4;
+        } else if (args.TONE === SoundToneMenu.SOL) {
+            tone_freq = noteFreq.G4;
+        } else if (args.TONE === SoundToneMenu.LA) {
+            tone_freq = noteFreq.A4;
+        } else if (args.TONE === SoundToneMenu.TI) {
+            tone_freq = noteFreq.B4;
+        }
+
+        if (args.BEAT === SoundBeatMenu.ONE_FOURTH) {
+            beat_time = 0x01;
+        } else if (args.BEAT === SoundBeatMenu.TWO_FOURTH) {
+            beat_time = 0x02;
+        } else if (args.BEAT === SoundBeatMenu.THREE_FOURTH) {
+            beat_time = 0x03;
+        } else if (args.BEAT === SoundBeatMenu.FOUR_FOURTH) {
+            beat_time = 0x04;
+        } else if (args.BEAT === SoundBeatMenu.FIVE_FOURTH) {
+            beat_time = 0x05;
+        } else if (args.BEAT === SoundBeatMenu.SIX_FOURTH) {
+            beat_time = 0x06;
+        } else if (args.BEAT === SoundBeatMenu.ROLL_DICE) {
+            beat_time = this.rollDice();
+        }
+
+        soundAltoData.push(BLECommand.CMD_PLAY_TONE);
+        soundAltoData.push((tone_freq & 0xff00) >> 8);
+        soundAltoData.push(tone_freq & 0x00ff);
+        soundAltoData.push(((beat_time * 500) & 0xff00) >> 8);
+        soundAltoData.push((beat_time * 500) & 0xff);
+
+        this._peripheral.commandSyncFlag.soundAltoFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(soundAltoData));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > (beat_time * 500 + 100)) {
+                    console.log('soundTreble timeout');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.soundAltoFlag = false;
+                    resolve();
+                }
+                if (this._peripheral.commandSyncFlag.soundAltoFlag === false) {
                     clearInterval(interval);
                     resolve();
                 }
