@@ -19,6 +19,7 @@ const BLECommand = {
     CMD_SENSOR_DETECT:                  0x20,
     CMD_GET_SENSOR_VALUE:               0x28,
     CMD_EVENT_DETECT:                   0x32,
+    CMD_BLE_MODE_CONFIG:                0x33,
     CMD_SET_NEW_PROTOCOL:               0x7e,
     CMD_HEARTBEAT:                      0x87,
     CMD_GENERAL_RSP:                    0x88,
@@ -159,6 +160,7 @@ class MatataCon {
             getAccelerationYFlag: false,
             getAccelerationZFlag: false,
             setNewProtocolFlag: false,
+            setBleModeFlag: false,
         };
         
         this.wait_ir_message = 0;
@@ -377,23 +379,26 @@ class MatataCon {
     }
 
     clearCommandSyncFlag() {
-         if (this.commandSyncFlag.lightRingEffectFlag == true) {
+         if (this.commandSyncFlag.lightRingEffectFlag === true) {
              this.commandSyncFlag.lightRingEffectFlag = false;
          }
-         if (this.commandSyncFlag.lightRingLedSingleSet1Flag == true) {
+         if (this.commandSyncFlag.lightRingLedSingleSet1Flag === true) {
              this.commandSyncFlag.lightRingLedSingleSet1Flag = false;
          }
-         if (this.commandSyncFlag.lightRingLedSingleSet2Flag == true) {
+         if (this.commandSyncFlag.lightRingLedSingleSet2Flag === true) {
              this.commandSyncFlag.lightRingLedSingleSet2Flag = false;
          }
-         if (this.commandSyncFlag.lightRingLedSingleSet3Flag == true) {
+         if (this.commandSyncFlag.lightRingLedSingleSet3Flag === true) {
              this.commandSyncFlag.lightRingLedSingleSet3Flag = false;
          }
-         if(this.commandSyncFlag.sendIRmessageFlag == true) {
+         if(this.commandSyncFlag.sendIRmessageFlag === true) {
              this.commandSyncFlag.sendIRmessageFlag = false;
          }
-         if(this.commandSyncFlag.lightRingAllLedOffFlag == true) {
+         if(this.commandSyncFlag.lightRingAllLedOffFlag === true) {
              this.commandSyncFlag.lightRingAllLedOffFlag = false;
+         }
+         if(this.commandSyncFlag.setBleModeFlag === true) {
+             this.commandSyncFlag.setBleModeFlag = false;
          }
     }
 
@@ -597,6 +602,31 @@ class MatataCon {
         });
     }
 
+    setBlemode () {
+        const setBlemodeData = new Array();
+        setBlemodeData.push(BLECommand.CMD_BLE_MODE_CONFIG);
+        setBlemodeData.push(0x02);
+        this.commandSyncFlag.setBleModeFlag = true;
+        this.send(this.packCommand(setBlemodeData));
+        return new Promise(resolve => {
+            let count = 0;
+            let interval = setInterval(()=> {
+                if(count > 1000) {
+                    console.log('setBlemode timeout!');
+                    clearInterval(interval);
+                    this.commandSyncFlag.setBleModeFlag = false;
+                    this.disconnect();
+                    resolve();
+                }
+                else if(this.commandSyncFlag.setBleModeFlag == false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 100;
+            }, 100);
+        });
+    }
+
     setButtonEventMonitor (enable) {
         const setButtonEventMonitorData = new Array();
         setButtonEventMonitorData.push(BLECommand.CMD_EVENT_DETECT);
@@ -679,16 +709,20 @@ class MatataCon {
         this._ble.startNotifications(BLEINFO.service, BLEINFO.rxChar, this._onMessage);
         this.setNewProtocol();
         setTimeout(()=> {
-            this.setButtonEventMonitor(0x01);
+            this.setBlemode();
         }, 4000);
 
         setTimeout(()=> {
-            this.setMotionEventMonitor(0x01);
+            this.setButtonEventMonitor(0x01);
         }, 5000);
 
         setTimeout(()=> {
-            this.setSoundEventMonitor(0x01);
+            this.setMotionEventMonitor(0x01);
         }, 6000);
+
+        setTimeout(()=> {
+            this.setSoundEventMonitor(0x01);
+        }, 7000);
     }
 
     /**
