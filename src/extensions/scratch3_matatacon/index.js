@@ -453,7 +453,7 @@ class MatataCon {
                 }
                 else if(command_data[2] == SensorDetectCommand.IR_MESSAGE) {
                     if(command_data[4] == this.wait_ir_message) {
-                        commandSyncFlag.waitIRmessageFlag = false;
+                        this.commandSyncFlag.waitIRmessageFlag = false;
                     }
                 }
                 else if(command_data[2] == SensorDetectCommand.OBSTACLE_DETECT) {
@@ -2080,24 +2080,41 @@ class Scratch3MatataConBlocks {
         } else if (args.MESSAGE_INDEX == MessageIndexMenu.ROLL_DICE) {
             message_index = this.rollDice();
         }
-        this._peripheral.wait_ir_message = message_index;
         waitIRMessageData.push(BLECommand.CMD_SENSOR_DETECT);
         waitIRMessageData.push(SensorDetectCommand.IR_MESSAGE);
         waitIRMessageData.push(0x02);   //wait IR message
-        waitIRMessageData.push(message_index);
-        this._peripheral.commandSyncFlag.waitIRmessageFlag = true;
-        this._peripheral.send(this._peripheral.packCommand(waitIRMessageData));
+        if(this._peripheral.wait_ir_message !== 0)
+        {
+            const cancelCommandData = new Array();
+            cancelCommandData.push(0x84);
+            this._peripheral.send(this._peripheral.packCommand(cancelCommandData));
+            setTimeout(()=> {
+                this._peripheral.wait_ir_message = message_index;
+                waitIRMessageData.push(message_index);
+                this._peripheral.commandSyncFlag.waitIRmessageFlag = true;
+                this._peripheral.send(this._peripheral.packCommand(waitIRMessageData));
+            }, 1000);
+        }
+        else
+        {
+            this._peripheral.wait_ir_message = message_index;
+            waitIRMessageData.push(message_index);
+            this._peripheral.commandSyncFlag.waitIRmessageFlag = true;
+            this._peripheral.send(this._peripheral.packCommand(waitIRMessageData));
+        }
         return new Promise(resolve => {
             let count = 0;
             let interval = setInterval(()=> {
-                if(count > 60 * 1000) {
+                if(count > (5 * 3600 * 1000)) {
                     console.log('waitIRMessage timeout!');
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.waitIRmessageFlag = false;
+                    this._peripheral.wait_ir_message = 0;
                     resolve();
                 } else if (this._peripheral.commandSyncFlag.waitIRmessageFlag == false) {
                     console.log('waitIRMessage success!');
                     clearInterval(interval);
+                    this._peripheral.wait_ir_message = 0;
                     resolve();
                 }
                 count += 10;
