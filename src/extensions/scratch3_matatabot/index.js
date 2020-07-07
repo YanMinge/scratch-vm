@@ -678,31 +678,6 @@ const LooksLightMenu = {
 };
 
 /**
- * Enum for motor site.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const LooksSiteMenu = {
-    previous: 'previous'
-};
-
-/**
- * Enum for motor light effect.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const LooksLightEffectMenu = {
-    wave: 'wave',
-    rainbow: 'rainbow',
-    meteor: 'meteor',
-    firefly: 'firefly',
-    brush: 'brush',
-    breath: 'breath'
-};
-
-/**
  * Enum for motor sound song.
  * Note: if changed, will break compatibility with previously saved projects.
  * @readonly
@@ -719,87 +694,6 @@ const SoundSongMenu = {
     song8: '8',
     song9: '9',
     song10: '10'
-};
-
-/**
- * Enum for motor sound melody.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SoundMelodyMenu = {
-    hello: 'hello'
-};
-
-/**
- * Enum for motor sensing identifier.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SensingIdentifierMenu = {
-    light: 'light'
-};
-
-/**
- * Enum for motor sensing button.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SensingButtonMenu = {
-    run: '执行'
-};
-
-/**
- * Enum for motor sensing event.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SensingEventMenu = {
-    shake: '摇晃'
-};
-
-/**
- * Enum for motor sensing color.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SensingColorMenu = {
-    red: 'red'
-};
-
-/**
- * Enum for motor sensing data.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SensingDataMenu = {
-    one: 'one'
-};
-
-/**
- * Enum for motor sensing axis.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SensingAxisMenu = {
-    x: 'x',
-    y: 'y'
-};
-
-/**
- * Enum for motor sensing perspect.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const SensingPerspectMenu = {
-    pitch: '俯仰角'
 };
 
 /**
@@ -1534,78 +1428,6 @@ class Scratch3MatataBotBlocks {
     }
 
     /**
-     * @return {array} - text and values for each site menu element
-     */
-    get LOOKS_SITE_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksSiteMenu.previous',
-                    default: 'previous',
-                    description: 'label for matatabot site previous'
-                }),
-                value: LooksSiteMenu.previous
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each light effect menu element
-     */
-    get LOOKS_LIGHT_EFFECT_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightEffectMenu.wave',
-                    default: 'wave',
-                    description: 'label for matatabot light effect wave'
-                }),
-                value: LooksLightEffectMenu.wave
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightEffectMenu.rainbow',
-                    default: 'rainbow',
-                    description: 'label for matatabot light effect rainbow'
-                }),
-                value: LooksLightEffectMenu.rainbow
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightEffectMenu.meteor',
-                    default: 'meteor',
-                    description: 'label for matatabot light effect meteor'
-                }),
-                value: LooksLightEffectMenu.meteor
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightEffectMenu.firefly',
-                    default: 'firefly',
-                    description: 'label for matatabot light effect firefly'
-                }),
-                value: LooksLightEffectMenu.firefly
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightEffectMenu.brush',
-                    default: 'brush',
-                    description: 'label for matatabot light effect brush'
-                }),
-                value: LooksLightEffectMenu.brush
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightEffectMenu.breath',
-                    default: 'breath',
-                    description: 'label for matatabot light effect breath'
-                }),
-                value: LooksLightEffectMenu.breath
-            }
-        ];
-    }
-
-    /**
      * @return {array} - text and values for each song menu element
      */
     get SOUND_SONG_MENU () {
@@ -1689,142 +1511,6 @@ class Scratch3MatataBotBlocks {
                     description: 'label for matatabot song song10'
                 }),
                 value: SoundSongMenu.song10
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each melody menu element
-     */
-    get SOUND_MELODY_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.soundMelody.hello',
-                    default: 'hello',
-                    description: 'label for matatabot melody hello'
-                }),
-                value: SoundMelodyMenu.hello
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each identifier menu element
-     */
-    get SENSING_IDENTIFIER_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.sensingIdentifier.light',
-                    default: 'light',
-                    description: 'label for matatabot identifier light'
-                }),
-                value: SensingIdentifierMenu.light
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each button menu element
-     */
-    get SENSING_BUTTON_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.sensingButton.run',
-                    default: '执行',
-                    description: 'label for matatabot button run'
-                }),
-                value: SensingButtonMenu.run
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each event menu element
-     */
-    get SENSING_EVENT_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.sensingEvent.shake',
-                    default: '摇晃',
-                    description: 'label for matatabot event shake'
-                }),
-                value: SensingEventMenu.shake
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each color menu element
-     */
-    get SENSING_COLOR_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.sensingColor.red',
-                    default: 'red',
-                    description: 'label for matatabot color red'
-                }),
-                value: SensingColorMenu.red
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each data menu element
-     */
-    get SENSING_DATA_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.sensingData.one',
-                    default: 'one',
-                    description: 'label for matatabot color one'
-                }),
-                value: SensingDataMenu.one
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each axis menu element
-     */
-    get SENSING_AXIS_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.sensingAxis.x',
-                    default: 'x',
-                    description: 'label for matatabot axis x'
-                }),
-                value: SensingAxisMenu.x
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.sensingAxis.y',
-                    default: 'y',
-                    description: 'label for matatabot axis y'
-                }),
-                value: SensingAxisMenu.y
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each perspect menu element
-     */
-    get SENSING_PERSPECT_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.sensingPerspect.pitch',
-                    default: '俯仰视',
-                    description: 'label for matatabot perspect pitch'
-                }),
-                value: SensingPerspectMenu.pitch
             }
         ];
     }
@@ -1980,6 +1666,22 @@ class Scratch3MatataBotBlocks {
                     }
                 },
                 {
+                    opcode: 'motionStopMoving',
+                    text: formatMessage({
+                        id: 'matatabot.motionStopMoving',
+                        default: '[WHEEL] stop moving',
+                        description: 'Stop moving'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        WHEEL: {
+                            type: ArgumentType.STRING,
+                            menu: 'motionWheel',
+                            defaultValue: MotionWheelMenu.both
+                        }
+                    }
+                },
+                {
                     opcode: 'motionWheelSpeed',
                     text: formatMessage({
                         id: 'matatabot.motionWheelSpeed',
@@ -1995,22 +1697,6 @@ class Scratch3MatataBotBlocks {
                         RIGHT: {
                             type: ArgumentType.NUMBER,
                             defaultValue: 0
-                        }
-                    }
-                },
-                {
-                    opcode: 'motionStopMoving',
-                    text: formatMessage({
-                        id: 'matatabot.motionStopMoving',
-                        default: '[WHEEL] stop moving',
-                        description: 'Stop moving'
-                    }),
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        WHEEL: {
-                            type: ArgumentType.STRING,
-                            menu: 'motionWheel',
-                            defaultValue: MotionWheelMenu.both
                         }
                     }
                 },
@@ -2173,7 +1859,7 @@ class Scratch3MatataBotBlocks {
                         description: 'turn all eyes lights off'
                     }),
                     blockType: BlockType.COMMAND
-                },
+                }
             ],
             menus: {
                 motionStep: {
@@ -2212,6 +1898,10 @@ class Scratch3MatataBotBlocks {
                     acceptReporters: true,
                     items: this.SOUND_TONE_MENU
                 },
+                looksSide: {
+                    acceptReporters: true,
+                    items: this.LOOKS_SIDE_MENU
+                },
                 looksColor: {
                     acceptReporters: true,
                     items: this.LOOKS_COLOR_MENU
@@ -2220,49 +1910,9 @@ class Scratch3MatataBotBlocks {
                     acceptReporters: true,
                     items: this.LOOKS_LIGHT_MENU
                 },
-                looksSite: {
-                    acceptReporters: true,
-                    items: this.LOOKS_SITE_MENU
-                },
-                looksLightEffect: {
-                    acceptReporters: true,
-                    items: this.LOOKS_LIGHT_EFFECT_MENU
-                },
                 soundSong: {
                     acceptReporters: true,
                     items: this.SOUND_SONG_MENU
-                },
-                soundMelody: {
-                    acceptReporters: true,
-                    items: this.SOUND_MELODY_MENU
-                },
-                sensingIdentifier: {
-                    acceptReporters: true,
-                    items: this.SENSING_IDENTIFIER_MENU
-                },
-                sensingButton: {
-                    acceptReporters: true,
-                    items: this.SENSING_BUTTON_MENU
-                },
-                sensingEvent: {
-                    acceptReporters: true,
-                    items: this.SENSING_EVENT_MENU
-                },
-                sensingColor: {
-                    acceptReporters: true,
-                    items: this.SENSING_COLOR_MENU
-                },
-                sensingData: {
-                    acceptReporters: true,
-                    items: this.SENSING_DATA_MENU
-                },
-                sensingAxis: {
-                    acceptReporters: true,
-                    items: this.SENSING_AXIS_MENU
-                },
-                sensingPerspect: {
-                    acceptReporters: true,
-                    items: this.SENSING_PERSPECT_MENU
                 }
             }
         };
@@ -2529,7 +2179,7 @@ class Scratch3MatataBotBlocks {
         const moveAngle = MathUtil.clamp(args.ANGLE, -360, 360);
         const timeout = MathUtil.clamp(15 * Math.abs(moveAngle), 1000, 4800);
         motionWhirlData.push(BLECommand.CMD_MOVE_POS);
-        if(moveAngle >= 0) {
+        if (moveAngle >= 0) {
             motionWhirlData.push(MovePosCommand.MOVE_RIGHT);
         } else {
             motionWhirlData.push(MovePosCommand.MOVE_LEFT);
@@ -2599,21 +2249,21 @@ class Scratch3MatataBotBlocks {
         if (args.RIGHT_GEAR === MotionGearMenu.GEAR1) {
             right_speed = 0x01;
         } else if (args.RIGHT_GEAR === MotionGearMenu.GEAR2) {
-            right_speed  = 0x02;
+            right_speed = 0x02;
         } else if (args.RIGHT_GEAR === MotionGearMenu.GEAR3) {
-            right_speed  = 0x03;
+            right_speed = 0x03;
         } else if (args.RIGHT_GEAR === MotionGearMenu.GEAR4) {
-            right_speed  = 0x04;
+            right_speed = 0x04;
         } else if (args.RIGHT_GEAR === MotionGearMenu.GEAR5) {
-            right_speed  = 0x05;
+            right_speed = 0x05;
         } else if (args.RIGHT_GEAR === MotionGearMenu.GEAR6) {
-            right_speed  = 0x06;
+            right_speed = 0x06;
         } else if (args.RIGHT_GEAR === MotionGearMenu.STOP) {
-            right_speed  = 0x00;
+            right_speed = 0x00;
         } else if (args.RIGHT_GEAR === MotionGearMenu.NULL) {
-            right_speed  = 0x08;
+            right_speed = 0x08;
         } else if (args.RIGHT_GEAR === MotionGearMenu.ROLL_DICE) {
-            right_speed  = this.rollDice();
+            right_speed = this.rollDice();
         }
 
         if (left_speed == 0x00) {
@@ -2680,14 +2330,14 @@ class Scratch3MatataBotBlocks {
         const right_speed = Math.round(144.0 * (MathUtil.clamp(args.RIGHT, -17, 17) / 9.7));
         motionWheelSpeedData.push(BLECommand.CMD_MOVE_SPEED);
         motionWheelSpeedData.push(MoveSpeedCommand.MOTION_BOTH);
-        if(left_speed >= 0) {
+        if (left_speed >= 0) {
             motionWheelSpeedData.push(0x01);
         } else {
             motionWheelSpeedData.push(0x02);
         }
         motionWheelSpeedData.push((Math.abs(left_speed) & 0xff00) >> 8);
         motionWheelSpeedData.push(Math.abs(left_speed) & 0xff);
-        if(right_speed >= 0) {
+        if (right_speed >= 0) {
             motionWheelSpeedData.push(0x01);
         } else {
             motionWheelSpeedData.push(0x02);
