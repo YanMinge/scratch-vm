@@ -1507,7 +1507,7 @@ class Scratch3MatataConBlocks {
                         LIGHT_EFFECT: {
                             type: ArgumentType.STRING,
                             menu: 'lightEffect',
-                            defaultValue: LightEffectMenu.SPOONDRIFT
+                            defaultValue: LightEffectMenu.FIREFLY
                         }
                     }
                 },
