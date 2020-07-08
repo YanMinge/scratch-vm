@@ -7,7 +7,7 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 // const log = require('../../util/log');
-// const cast = require('../../util/cast');
+const cast = require('../../util/cast');
 const MathUtil = require('../../util/math-util');
 const formatMessage = require('format-message');
 const BLE = require('../../io/ble');
@@ -25,6 +25,8 @@ const BLECommand = {
     CMD_DANCE:            0x12,
     CMD_ACTION:           0x13,
     CMD_PLAY_TONE:        0x15,
+    CMD_PLAY_MUSIC:       0x16,
+    CMD_EYE_LED:          0x17,
     CMD_SET_NEW_PROTOCOL: 0x7e,
     CMD_HEARTBEAT:        0x87,
     CMD_GENERAL_RSP:      0x88
@@ -41,6 +43,13 @@ const MoveSpeedCommand = {
     MOTION_LEFT:          0x01,
     MOTION_RIGHT:         0x02,
     MOTION_BOTH:          0x03
+};
+
+const PalyMusicCommand = {
+    PLAY_UNTIL_DONE:      0x01,
+    PLAY_NORMAL:          0x02,
+    PLAY_LOOP:            0x03,
+    PLAY_STOP:            0x04
 };
 
 /**
@@ -142,6 +151,12 @@ class MatataBot {
             doActionFlag: false,
             soundAltoFlag: false,
             soundTrebleFlag: false,
+            soundMelodyFlag: false,
+            soundSongFlag: false,
+            eyeLedSingleSet1Flag: false,
+            eyeLedSingleSet2Flag: false,
+            eyeLedSingleSet3Flag: false,
+            eyeLedAllOffFlag: false,
             setNewProtocolFlag: false
         };
 
@@ -378,6 +393,24 @@ class MatataBot {
         if (this.commandSyncFlag.soundTrebleFlag === true) {
             this.commandSyncFlag.soundTrebleFlag = false;
         }
+        if (this.commandSyncFlag.soundMelodyFlag === true) {
+            this.commandSyncFlag.soundMelodyFlag = false;
+        }
+        if (this.commandSyncFlag.soundSongFlag === true) {
+            this.commandSyncFlag.soundSongFlag = false;
+        }
+        if (this.commandSyncFlag.eyeLedSingleSet1Flag === true) {
+            this.commandSyncFlag.eyeLedSingleSet1Flag = false;
+        }
+        if (this.commandSyncFlag.eyeLedSingleSet2Flag === true) {
+            this.commandSyncFlag.eyeLedSingleSet2Flag = false;
+        }
+        if (this.commandSyncFlag.eyeLedSingleSet3Flag === true) {
+            this.commandSyncFlag.eyeLedSingleSet3Flag = false;
+        }
+        if (this.commandSyncFlag.eyeLedAllOffFlag === true) {
+            this.commandSyncFlag.eyeLedAllOffFlag = false;
+        }
     }
 
     parseCommand () {
@@ -465,7 +498,7 @@ class MatataBot {
     _onMessage (base64) {
         // parse data
         const dataReceived = Base64Util.base64ToUint8Array(base64);
-        // console.log("matataCon recv:");
+        // console.log("matataBot recv:");
         // console.log(dataReceived);
         this.depackCommand(dataReceived);
     }
@@ -638,65 +671,82 @@ const noteFreq = {
 };
 
 /**
- * Enum for motor side.
+ * Enum for sound melody.
  * Note: if changed, will break compatibility with previously saved projects.
  * @readonly
  * @enum {string}
  */
-const LooksSideMenu = {
-    left: 'left',
-    right: 'right',
-    all: 'all'
+const SoundMelodyMenu = {
+    NUM1: 'the 1st',
+    NUM2: 'the 2nd',
+    NUM3: 'the 3rd',
+    NUM4: 'the 4th',
+    NUM5: 'the 5th',
+    NUM6: 'the 6th',
+    NUM7: 'the 7th',
+    NUM8: 'the 8th',
+    NUM9: 'the 9th',
+    NUM10: 'the 10th',
 };
 
 /**
- * Enum for motor color.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const LooksColorMenu = {
-    white: 'white',
-    red: 'red',
-    yellow: 'yellow',
-    green: 'green',
-    blue: 'blue',
-    purple: 'purple',
-    off: 'off'
-};
-
-/**
- * Enum for motor light.
- * Note: if changed, will break compatibility with previously saved projects.
- * @readonly
- * @enum {string}
- */
-const LooksLightMenu = {
-    light1: '1',
-    light2: '2',
-    light3: '3',
-    light4: '4',
-    light5: '5',
-    light6: '6'
-};
-
-/**
- * Enum for motor sound song.
+ * Enum for sound song.
  * Note: if changed, will break compatibility with previously saved projects.
  * @readonly
  * @enum {string}
  */
 const SoundSongMenu = {
-    song1: '1',
-    song2: '2',
-    song3: '3',
-    song4: '4',
-    song5: '5',
-    song6: '6',
-    song7: '7',
-    song8: '8',
-    song9: '9',
-    song10: '10'
+    NUM1: 'the 1st',
+    NUM2: 'the 2nd',
+    NUM3: 'the 3rd',
+    NUM4: 'the 4th',
+    NUM5: 'the 5th',
+    NUM6: 'the 6th',
+    ROLL_DICE: 'roll dice'
+};
+
+/**
+ * Enum for eye side.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const LooksSideMenu = {
+    LEFT: 'left',
+    RIGHT: 'right',
+    ALL: 'all'
+};
+
+/**
+ * Enum for color type.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const ColorTypeMenu = {
+    WHITE:         'white',
+    RED:           'red',
+    YELLOW:        'yellow',
+    GREEN:         'green',
+    BLUE:          'blue',
+    PURPLE:        'purple',
+    BLACK:         'black'
+};
+
+/**
+ * Enum for brightness level.
+ * Note: if changed, will break compatibility with previously saved projects.
+ * @readonly
+ * @enum {string}
+ */
+const BrightnessLevelMenu = {
+    LEV1:        '1',
+    LEV2:        '2',
+    LEV3:        '3',
+    LEV4:        '4',
+    LEV5:        '5',
+    LEV6:        '6',
+    ROLL_DICE:   'roll dice'
 };
 
 /**
@@ -1030,7 +1080,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.danceIndexMenu.num1',
-                    default: 'The 1st',
+                    default: 'the 1st',
                     description: 'label for matatabot dance 1'
                 }),
                 value: DanceIndexMenu.NUM1
@@ -1038,7 +1088,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.danceIndexMenu.num2',
-                    default: 'The 2nd',
+                    default: 'the 2nd',
                     description: 'label for matatabot dance 2'
                 }),
                 value: DanceIndexMenu.NUM2
@@ -1046,7 +1096,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.danceIndexMenu.num3',
-                    default: 'The 3rd',
+                    default: 'the 3rd',
                     description: 'label for matatabot dance 3'
                 }),
                 value: DanceIndexMenu.NUM3
@@ -1054,7 +1104,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.danceIndexMenu.num4',
-                    default: 'The 4th',
+                    default: 'the 4th',
                     description: 'label for matatabot dance 4'
                 }),
                 value: DanceIndexMenu.NUM4
@@ -1062,7 +1112,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.danceIndexMenu.num5',
-                    default: 'The 5th',
+                    default: 'the 5th',
                     description: 'label for matatabot dance 5'
                 }),
                 value: DanceIndexMenu.NUM5
@@ -1070,7 +1120,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.danceIndexMenu.num6',
-                    default: 'The 6th',
+                    default: 'the 6th',
                     description: 'label for matatabot dance 6'
                 }),
                 value: DanceIndexMenu.NUM6
@@ -1094,7 +1144,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num1',
-                    default: 'The 1st',
+                    default: 'the 1st',
                     description: 'label for matatabot dance 1'
                 }),
                 value: ActionIndexMenu.NUM1
@@ -1102,7 +1152,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num2',
-                    default: 'The 2nd',
+                    default: 'the 2nd',
                     description: 'label for matatabot dance 2'
                 }),
                 value: ActionIndexMenu.NUM2
@@ -1110,7 +1160,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num3',
-                    default: 'The 3rd',
+                    default: 'the 3rd',
                     description: 'label for matatabot dance 3'
                 }),
                 value: ActionIndexMenu.NUM3
@@ -1118,7 +1168,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num4',
-                    default: 'The 4th',
+                    default: 'the 4th',
                     description: 'label for matatabot dance 4'
                 }),
                 value: ActionIndexMenu.NUM4
@@ -1126,7 +1176,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num5',
-                    default: 'The 5th',
+                    default: 'the 5th',
                     description: 'label for matatabot dance 5'
                 }),
                 value: ActionIndexMenu.NUM5
@@ -1134,7 +1184,7 @@ class Scratch3MatataBotBlocks {
             {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num6',
-                    default: 'The 6th',
+                    default: 'the 6th',
                     description: 'label for matatabot dance 6'
                 }),
                 value: ActionIndexMenu.NUM6
@@ -1279,153 +1329,89 @@ class Scratch3MatataBotBlocks {
     }
 
     /**
-     * @return {array} - text and values for each side menu element
+     * @return {array} - text and values for each melody menu element
      */
-    get LOOKS_SIDE_MENU () {
+    get SOUND_MELODY_MENU () {
         return [
             {
                 text: formatMessage({
-                    id: 'matatabot.looksSideMenu.left',
-                    default: 'left',
-                    description: 'label for matatabot side left'
+                    id: 'matatabot.soundMelody.num1',
+                    default: 'the 1st',
+                    description: 'label for matatabot melody1'
                 }),
-                value: LooksSideMenu.left
+                value: SoundMelodyMenu.NUM1
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksSideMenu.right',
-                    default: 'right',
-                    description: 'label for matatabot side right'
+                    id: 'matatabot.soundMelody.num2',
+                    default: 'the 2nd',
+                    description: 'label for matatabot melody2'
                 }),
-                value: LooksSideMenu.right
+                value: SoundMelodyMenu.NUM2
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksSideMenu.all',
-                    default: 'all',
-                    description: 'label for matatabot side all'
+                    id: 'matatabot.soundMelody.num3',
+                    default: 'the 3rd',
+                    description: 'label for matatabot melody3'
                 }),
-                value: LooksSideMenu.all
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each color menu element
-     */
-    get LOOKS_COLOR_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksColorMenu.white',
-                    default: 'white',
-                    description: 'label for matatabot color white'
-                }),
-                value: LooksColorMenu.white
+                value: SoundMelodyMenu.NUM3
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksColorMenu.red',
-                    default: 'red',
-                    description: 'label for matatabot color red'
+                    id: 'matatabot.soundMelody.num4',
+                    default: 'the 4th',
+                    description: 'label for matatabot melody4'
                 }),
-                value: LooksColorMenu.red
+                value: SoundMelodyMenu.NUM4
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksColorMenu.yellow',
-                    default: 'yellow',
-                    description: 'label for matatabot color yellow'
+                    id: 'matatabot.soundMelody.num5',
+                    default: 'the 5th',
+                    description: 'label for matatabot melody5'
                 }),
-                value: LooksColorMenu.yellow
+                value: SoundMelodyMenu.NUM5
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksColorMenu.green',
-                    default: 'green',
-                    description: 'label for matatabot color green'
+                    id: 'matatabot.soundMelody.num6',
+                    default: 'the 6th',
+                    description: 'label for matatabot melody6'
                 }),
-                value: LooksColorMenu.green
+                value: SoundMelodyMenu.NUM6
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksColorMenu.blue',
-                    default: 'blue',
-                    description: 'label for matatabot color blue'
+                    id: 'matatabot.soundMelody.num7',
+                    default: 'the 7th',
+                    description: 'label for matatabot melody7'
                 }),
-                value: LooksColorMenu.blue
+                value: SoundMelodyMenu.NUM7
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksColorMenu.purple',
-                    default: 'purple',
-                    description: 'label for matatabot color purple'
+                    id: 'matatabot.soundMelody.num8',
+                    default: 'the 8th',
+                    description: 'label for matatabot melody8'
                 }),
-                value: LooksColorMenu.purple
+                value: SoundMelodyMenu.NUM8
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksColorMenu.off',
-                    default: 'off',
-                    description: 'label for matatabot color off'
+                    id: 'matatabot.soundMelody.num9',
+                    default: 'the 9th',
+                    description: 'label for matatabot melody9'
                 }),
-                value: LooksColorMenu.off
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each light menu element
-     */
-    get LOOKS_LIGHT_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightMenu.Light1',
-                    default: '1',
-                    description: 'label for matatabot light Light1'
-                }),
-                value: LooksLightMenu.light1
+                value: SoundMelodyMenu.NUM9
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.looksLightMenu.Light2',
-                    default: '2',
-                    description: 'label for matatabot light Light2'
+                    id: 'matatabot.soundMelody.num10',
+                    default: 'the 10th',
+                    description: 'label for matatabot melody10'
                 }),
-                value: LooksLightMenu.light2
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightMenu.Light3',
-                    default: '3',
-                    description: 'label for matatabot light Light3'
-                }),
-                value: LooksLightMenu.light3
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightMenu.Light4',
-                    default: '4',
-                    description: 'label for matatabot light Light4'
-                }),
-                value: LooksLightMenu.light4
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightMenu.Light5',
-                    default: '5',
-                    description: 'label for matatabot light Light5'
-                }),
-                value: LooksLightMenu.light5
-            },
-            {
-                text: formatMessage({
-                    id: 'matatabot.looksLightMenu.Light6',
-                    default: '6',
-                    description: 'label for matatabot light Light6'
-                }),
-                value: LooksLightMenu.light6
+                value: SoundMelodyMenu.NUM10
             }
         ];
     }
@@ -1437,83 +1423,219 @@ class Scratch3MatataBotBlocks {
         return [
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song1',
-                    default: 'The 1st',
-                    description: 'label for matatabot song song1'
+                    id: 'matatabot.soundSong.num1',
+                    default: 'the 1st',
+                    description: 'label for matatabot song1'
                 }),
-                value: SoundSongMenu.song1
+                value: SoundSongMenu.NUM1
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song2',
-                    default: 'The 2nd',
-                    description: 'label for matatabot song song2'
+                    id: 'matatabot.soundSong.num2',
+                    default: 'the 2nd',
+                    description: 'label for matatabot song2'
                 }),
-                value: SoundSongMenu.song2
+                value: SoundSongMenu.NUM2
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song3',
-                    default: 'The 3rd',
-                    description: 'label for matatabot song song3'
+                    id: 'matatabot.soundSong.num3',
+                    default: 'the 3rd',
+                    description: 'label for matatabot song3'
                 }),
-                value: SoundSongMenu.song3
+                value: SoundSongMenu.NUM3
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song4',
-                    default: 'The 4th',
-                    description: 'label for matatabot song song4'
+                    id: 'matatabot.soundSong.num4',
+                    default: 'the 4th',
+                    description: 'label for matatabot song4'
                 }),
-                value: SoundSongMenu.song4
+                value: SoundSongMenu.NUM4
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song5',
-                    default: 'The 5th',
-                    description: 'label for matatabot song song5'
+                    id: 'matatabot.soundSong.num5',
+                    default: 'the 5th',
+                    description: 'label for matatabot song5'
                 }),
-                value: SoundSongMenu.song5
+                value: SoundSongMenu.NUM5
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song6',
-                    default: 'The 6th',
-                    description: 'label for matatabot song song6'
+                    id: 'matatabot.soundSong.num6',
+                    default: 'the 6th',
+                    description: 'label for matatabot song6'
                 }),
-                value: SoundSongMenu.song6
+                value: SoundSongMenu.NUM6
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song7',
-                    default: 'The 7th',
-                    description: 'label for matatabot song song7'
+                    id: 'matatabot.soundSong.rollDice',
+                    default: 'roll dice',
+                    description: 'label for matatabot song roll dice'
                 }),
-                value: SoundSongMenu.song7
+                value: SoundSongMenu.ROLL_DICE
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each side menu element
+     */
+    get LOOKS_SIDE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.looksSideMenu.left',
+                    default: 'left',
+                    description: 'label for matatabot side left'
+                }),
+                value: LooksSideMenu.LEFT
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song8',
-                    default: 'The 8th',
-                    description: 'label for matatabot song song8'
+                    id: 'matatabot.looksSideMenu.right',
+                    default: 'right',
+                    description: 'label for matatabot side right'
                 }),
-                value: SoundSongMenu.song8
+                value: LooksSideMenu.RIGHT
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song9',
-                    default: 'The 9th',
-                    description: 'label for matatabot song song9'
+                    id: 'matatabot.looksSideMenu.all',
+                    default: 'all',
+                    description: 'label for matatabot side all'
                 }),
-                value: SoundSongMenu.song9
+                value: LooksSideMenu.ALL
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each color menu element
+     */
+    get COLOR_TYPE_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.colorTypeMenu.white',
+                    default: 'white',
+                    description: 'The color is white'
+                }),
+                value: ColorTypeMenu.WHITE
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundSong.song10',
-                    default: 'The 10th',
-                    description: 'label for matatabot song song10'
+                    id: 'matatabot.colorTypeMenu.red',
+                    default: 'red',
+                    description: 'The color is red'
                 }),
-                value: SoundSongMenu.song10
+                value: ColorTypeMenu.RED
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.colorTypeMenu.yellow',
+                    default: 'yellow',
+                    description: 'The color is yellow'
+                }),
+                value: ColorTypeMenu.YELLOW
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.colorTypeMenu.green',
+                    default: 'green',
+                    description: 'The color is green'
+                }),
+                value: ColorTypeMenu.GREEN
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.colorTypeMenu.blue',
+                    default: 'blue',
+                    description: 'The color is blue'
+                }),
+                value: ColorTypeMenu.BLUE
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.colorTypeMenu.purple',
+                    default: 'purple',
+                    description: 'The color is purple'
+                }),
+                value: ColorTypeMenu.PURPLE
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.colorTypeMenu.black',
+                    default: 'black',
+                    description: 'The color is black'
+                }),
+                value: ColorTypeMenu.BLACK
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each brightness level menu element
+     */
+    get BRIGHTNESS_LEVEL_MENU () {
+        return [
+            {
+                text: formatMessage({
+                    id: 'matatabot.brightnessLevelMenu.lev1',
+                    default: '1',
+                    description: 'led brightness level 1'
+                }),
+                value: BrightnessLevelMenu.LEV1
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.brightnessLevelMenu.lev2',
+                    default: '2',
+                    description: 'led brightness level 1'
+                }),
+                value: BrightnessLevelMenu.LEV2
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.brightnessLevelMenu.lev3',
+                    default: '3',
+                    description: 'led brightness level 3'
+                }),
+                value: BrightnessLevelMenu.LEV3
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.brightnessLevelMenu.lev4',
+                    default: '4',
+                    description: 'led brightness level 4'
+                }),
+                value: BrightnessLevelMenu.LEV4
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.brightnessLevelMenu.lev5',
+                    default: '5',
+                    description: 'led brightness level 5'
+                }),
+                value: BrightnessLevelMenu.LEV5
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.brightnessLevelMenu.lev6',
+                    default: '6',
+                    description: 'led brightness level 6'
+                }),
+                value: BrightnessLevelMenu.LEV6
+            },
+            {
+                text: formatMessage({
+                    id: 'matatabot.brightnessLevelMenu.rollDice',
+                    default: 'roll dice',
+                    description: 'roll dice led brightness'
+                }),
+                value: BrightnessLevelMenu.ROLL_DICE
             }
         ];
     }
@@ -1587,7 +1709,7 @@ class Scratch3MatataBotBlocks {
                         ANGLE: {
                             type: ArgumentType.STRING,
                             menu: 'motionAngle',
-                            defaultValue: MotionAngleMenu.angle90
+                            defaultValue: MotionAngleMenu.ANGLE90
                         }
                     }
                 },
@@ -1603,7 +1725,7 @@ class Scratch3MatataBotBlocks {
                         ANGLE: {
                             type: ArgumentType.STRING,
                             menu: 'motionAngle',
-                            defaultValue: MotionAngleMenu.angle90
+                            defaultValue: MotionAngleMenu.ANGLE90
                         }
                     }
                 },
@@ -1679,11 +1801,11 @@ class Scratch3MatataBotBlocks {
                     arguments: {
                         LEFT: {
                             type: ArgumentType.NUMBER,
-                            defaultValue: 0
+                            defaultValue: 10
                         },
                         RIGHT: {
                             type: ArgumentType.NUMBER,
-                            defaultValue: 0
+                            defaultValue: 10
                         }
                     }
                 },
@@ -1781,15 +1903,15 @@ class Scratch3MatataBotBlocks {
                     opcode: 'soundMelody',
                     text: formatMessage({
                         id: 'matatabot.soundMelody',
-                        default: '[SONG] melody',
+                        default: '[MELODY] melody',
                         description: 'play a melody'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
-                        SONG: {
+                        MELODY: {
                             type: ArgumentType.STRING,
-                            menu: 'soundSong',
-                            defaultValue: SoundSongMenu.song1
+                            menu: 'soundMelody',
+                            defaultValue: SoundMelodyMenu.NUM1
                         }
                     }
                 },
@@ -1797,7 +1919,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'soundSong',
                     text: formatMessage({
                         id: 'matatabot.soundSong',
-                        default: '[SONG] Song',
+                        default: '[SONG] song',
                         description: 'play a sound'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1805,59 +1927,86 @@ class Scratch3MatataBotBlocks {
                         SONG: {
                             type: ArgumentType.STRING,
                             menu: 'soundSong',
-                            defaultValue: SoundSongMenu.song1
+                            defaultValue: SoundSongMenu.NUM1
                         }
                     }
                 },
                 {
-                    opcode: 'looksEyeStyle',
+                    opcode: 'eyeLedSingleSet1',
                     text: formatMessage({
-                        id: 'matatabot.looksEyeStyle',
-                        default: 'set [SIDE] eye [COLOR] by level [LIGHT]',
-                        description: 'eye style'
+                        id: 'matatabot.eyeLedSingleSet1',
+                        default: 'set [SIDE] eye [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
+                        description: 'set eye LED function 1'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
                         SIDE: {
                             type: ArgumentType.STRING,
                             menu: 'looksSide',
-                            defaultValue: LooksSideMenu.left
+                            defaultValue: LooksSideMenu.ALL
                         },
-                        COLOR: {
+                        COLOR_TYPE: {
                             type: ArgumentType.STRING,
-                            menu: 'looksColor',
-                            defaultValue: LooksColorMenu.red
+                            menu: 'colorType',
+                            defaultValue: ColorTypeMenu.WHITE
                         },
-                        LIGHT: {
+                        BRIGHTNESS_LEVEL: {
                             type: ArgumentType.STRING,
-                            menu: 'looksLight',
-                            defaultValue: LooksLightMenu.first
+                            menu: 'brightnessLevel',
+                            defaultValue: BrightnessLevelMenu.LEV1
                         }
                     }
                 },
                 {
-                    opcode: 'looksEyeStyleByRGB',
+                    opcode: 'eyeLedSingleSet2',
                     text: formatMessage({
-                        id: 'matatabot.looksEyeStyleByRGB',
+                        id: 'matatabot.eyeLedSingleSet2',
                         default: 'set [SIDE] eye [COLOR]',
-                        description: 'set eye style by color selector'
+                        description: 'set eye LED function 2'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
                         SIDE: {
                             type: ArgumentType.STRING,
                             menu: 'looksSide',
-                            defaultValue: LooksSideMenu.left
+                            defaultValue: LooksSideMenu.ALL
                         },
                         COLOR: {
                             type: ArgumentType.COLOR
                         }
                     }
+                }, 
+                {
+                    opcode: 'eyeLedSingleSet3',
+                    text: formatMessage({
+                        id: 'matatabot.eyeLedSingleSet3',
+                        default: 'set eye [LED_INDEX] red [RED_VALUE] green [GREEN_VALUE] blue [BLUE_VALUE]',
+                        description: 'set single LED function 3'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        LED_INDEX: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        RED_VALUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 50
+                        },
+                        GREEN_VALUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 50
+                        },
+                        BLUE_VALUE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 50
+                        }
+                    }
                 },
                 {
-                    opcode: 'looksEyeTurnOff',
+                    opcode: 'eyeLedAllOff',
                     text: formatMessage({
-                        id: 'matatabot.looksEyeTurnOff',
+                        id: 'matatabot.eyeLedAllOff',
                         default: 'turn all eyes off',
                         description: 'turn all eyes lights off'
                     }),
@@ -1901,21 +2050,25 @@ class Scratch3MatataBotBlocks {
                     acceptReporters: true,
                     items: this.SOUND_TONE_MENU
                 },
-                looksSide: {
+                soundMelody: {
                     acceptReporters: true,
-                    items: this.LOOKS_SIDE_MENU
-                },
-                looksColor: {
-                    acceptReporters: true,
-                    items: this.LOOKS_COLOR_MENU
-                },
-                looksLight: {
-                    acceptReporters: true,
-                    items: this.LOOKS_LIGHT_MENU
+                    items: this.SOUND_MELODY_MENU
                 },
                 soundSong: {
                     acceptReporters: true,
                     items: this.SOUND_SONG_MENU
+                },
+                looksSide: {
+                    acceptReporters: true,
+                    items: this.LOOKS_SIDE_MENU
+                },
+                colorType: {
+                    acceptReporters: true,
+                    items: this.COLOR_TYPE_MENU
+                },
+                brightnessLevel: {
+                    acceptReporters: true,
+                    items: this.BRIGHTNESS_LEVEL_MENU
                 }
             }
         };
@@ -2621,6 +2774,268 @@ class Scratch3MatataBotBlocks {
                     resolve();
                 }
                 if (this._peripheral.commandSyncFlag.soundAltoFlag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    soundMelody (args) {
+        const soundMelodyData = new Array();
+        let melody_index = 0x01;
+        if (args.MELODY === SoundMelodyMenu.NUM1) {
+            melody_index = 0x01;
+        } else if (args.MELODY === SoundMelodyMenu.NUM2) {
+            melody_index = 0x02;
+        } else if (args.MELODY === SoundMelodyMenu.NUM3) {
+            melody_index = 0x03;
+        } else if (args.MELODY === SoundMelodyMenu.NUM4) {
+            melody_index = 0x04;
+        } else if (args.MELODY === SoundMelodyMenu.NUM5) {
+            melody_index = 0x05;
+        } else if (args.MELODY === SoundMelodyMenu.NUM6) {
+            melody_index = 0x06;
+        } else if (args.MELODY === SoundMelodyMenu.NUM7) {
+            melody_index = 0x07;
+        } else if (args.MELODY === SoundMelodyMenu.NUM8) {
+            melody_index = 0x08;
+        } else if (args.MELODY === SoundMelodyMenu.NUM9) {
+            melody_index = 0x09;
+        } else if (args.MELODY === SoundMelodyMenu.NUM10) {
+            melody_index = 0x0a;
+        }
+
+        soundMelodyData.push(BLECommand.CMD_PLAY_MUSIC);
+        soundMelodyData.push(PalyMusicCommand.PLAY_UNTIL_DONE);
+        soundMelodyData.push(melody_index);
+
+        this._peripheral.commandSyncFlag.soundMelodyFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(soundMelodyData));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 10000) {
+                    console.log('soundMelody timeout');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.soundMelodyFlag = false;
+                    resolve();
+                }
+                if (this._peripheral.commandSyncFlag.soundMelodyFlag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    soundSong (args) {
+        const soundSongData = new Array();
+        let sound_index = 0x11;
+        if (args.SONG === SoundSongMenu.NUM1) {
+            sound_index = 0x11;
+        } else if (args.SONG === SoundSongMenu.NUM2) {
+            sound_index = 0x12;
+        } else if (args.SONG === SoundSongMenu.NUM3) {
+            sound_index = 0x13;
+        } else if (args.SONG === SoundSongMenu.NUM4) {
+            sound_index = 0x14;
+        } else if (args.SONG === SoundSongMenu.NUM5) {
+            sound_index = 0x15;
+        } else if (args.SONG === SoundSongMenu.NUM6) {
+            sound_index = 0x16;
+        } else if (args.SONG === SoundSongMenu.ROLL_DICE) {
+            sound_index = 0x10 + this.rollDice();
+        }
+
+        soundSongData.push(BLECommand.CMD_PLAY_MUSIC);
+        soundSongData.push(PalyMusicCommand.PLAY_UNTIL_DONE);
+        soundSongData.push(sound_index);
+
+        this._peripheral.commandSyncFlag.soundSongFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(soundSongData));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 20000) {
+                    console.log('soundSong timeout');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.soundSongFlag = false;
+                    resolve();
+                }
+                if (this._peripheral.commandSyncFlag.soundSongFlag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    eyeLedSingleSet1 (args) {
+        const eyeLedSingleSet1Data = new Array();
+        let led_index = 0x03;
+        let color_type = 0x01;
+        let brightness_level = 0x01;
+        let r_value = 0xff;
+        let g_value = 0xff;
+        let b_value = 0xff;
+
+        if (args.SIDE === LooksSideMenu.LEFT) {
+            led_index = 0x01;
+        } else if (args.LED_INDEX === LooksSideMenu.RIGHT) {
+            led_index = 0x02;
+        } else if (args.LED_INDEX === LooksSideMenu.ALL) {
+            led_index = 0x03;
+        }
+
+        if (args.COLOR_TYPE === ColorTypeMenu.WHITE) {
+            color_type = 0x01;
+        } else if (args.COLOR_TYPE === ColorTypeMenu.RED) {
+            color_type = 0x02;
+        } else if (args.COLOR_TYPE === ColorTypeMenu.YELLOW) {
+            color_type = 0x03;
+        } else if (args.COLOR_TYPE === ColorTypeMenu.GREEN) {
+            color_type = 0x04;
+        } else if (args.COLOR_TYPE === ColorTypeMenu.BLUE) {
+            color_type = 0x05;
+        } else if (args.COLOR_TYPE === ColorTypeMenu.PURPLE) {
+            color_type = 0x06;
+        } else if (args.COLOR_TYPE === ColorTypeMenu.BLACK) {
+            color_type = 0x07;
+        }
+
+        if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV1) {
+            brightness_level = 0x01;
+        } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV2) {
+            brightness_level = 0x02;
+        } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV3) {
+            brightness_level = 0x03;
+        } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV4) {
+            brightness_level = 0x04;
+        } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV5) {
+            brightness_level = 0x05;
+        } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV6) {
+            brightness_level = 0x06;
+        } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.ROLL_DICE) {
+            brightness_level = this.rollDice();
+        }
+        eyeLedSingleSet1Data.push(BLECommand.CMD_EYE_LED);
+        eyeLedSingleSet1Data.push(led_index);
+        eyeLedSingleSet1Data.push((r_value * brightness_level) / 6);
+        eyeLedSingleSet1Data.push((g_value * brightness_level) / 6);
+        eyeLedSingleSet1Data.push((b_value * brightness_level) / 6);
+        this._peripheral.commandSyncFlag.eyeLedSingleSet1Flag = true;
+        this._peripheral.send(this._peripheral.packCommand(eyeLedSingleSet1Data));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 2000) {
+                    console.log('eyeLedSingleSet1 timeout!');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.eyeLedSingleSet1Flag = false;
+                    resolve();
+                } else if (this._peripheral.commandSyncFlag.eyeLedSingleSet1Flag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    eyeLedSingleSet2 (args) {
+        const eyeLedSingleSet2Data = new Array();
+        let led_index = 0x03;
+        const rgb = cast.toRgbColorObject(args.COLOR);
+        const red = rgb.r;
+        const green = rgb.g;
+        const blue = rgb.b;
+
+        if (args.SIDE === LooksSideMenu.LEFT) {
+            led_index = 0x01;
+        } else if (args.LED_INDEX === LooksSideMenu.RIGHT) {
+            led_index = 0x02;
+        } else if (args.LED_INDEX === LooksSideMenu.ALL) {
+            led_index = 0x03;
+        }
+        eyeLedSingleSet2Data.push(BLECommand.CMD_EYE_LED);
+        eyeLedSingleSet2Data.push(led_index);
+        eyeLedSingleSet2Data.push(red);
+        eyeLedSingleSet2Data.push(green);
+        eyeLedSingleSet2Data.push(blue);
+        this._peripheral.commandSyncFlag.eyeLedSingleSet2Flag = true;
+        this._peripheral.send(this._peripheral.packCommand(eyeLedSingleSet2Data));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 2000) {
+                    console.log('eyeLedSingleSet2 timeout!');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.eyeLedSingleSet2Flag = false;
+                    resolve();
+                } else if (this._peripheral.commandSyncFlag.eyeLedSingleSet2Flag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    eyeLedSingleSet3 (args) {
+        const eyeLedSingleSet3Data = new Array();
+        const red = MathUtil.clamp(args.RED_VALUE, 0, 255);
+        const green = MathUtil.clamp(args.GREEN_VALUE, 0, 255);
+        const blue = MathUtil.clamp(args.BLUE_VALUE, 0, 255);
+        let led_index = args.LED_INDEX % 3;
+        if (led_index === 0) {
+            led_index = 0x03;
+        }
+        eyeLedSingleSet3Data.push(BLECommand.CMD_EYE_LED);
+        eyeLedSingleSet3Data.push(led_index);
+        eyeLedSingleSet3Data.push(red);
+        eyeLedSingleSet3Data.push(green);
+        eyeLedSingleSet3Data.push(blue);
+        this._peripheral.commandSyncFlag.eyeLedSingleSet3Flag = true;
+        this._peripheral.send(this._peripheral.packCommand(eyeLedSingleSet3Data));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 2000) {
+                    console.log('eyeLedSingleSet3 timeout!');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.eyeLedSingleSet3Flag = false;
+                    resolve();
+                } else if (this._peripheral.commandSyncFlag.eyeLedSingleSet3Flag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    eyeLedAllOff (args) {
+        const eyeLedAllOffData = new Array();
+        eyeLedAllOffData.push(BLECommand.CMD_EYE_LED);
+        eyeLedAllOffData.push(0x03);
+        eyeLedAllOffData.push(0x00);
+        eyeLedAllOffData.push(0x00);
+        eyeLedAllOffData.push(0x00);
+        this._peripheral.commandSyncFlag.eyeLedAllOffFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(eyeLedAllOffData));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 2000) {
+                    console.log('eyeLedAllOff timeout!');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.eyeLedAllOffFlag = false;
+                    resolve();
+                } else if (this._peripheral.commandSyncFlag.eyeLedAllOffFlag === false) {
                     clearInterval(interval);
                     resolve();
                 }
