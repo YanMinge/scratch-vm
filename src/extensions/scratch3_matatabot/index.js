@@ -2893,18 +2893,39 @@ class Scratch3MatataBotBlocks {
 
         if (args.COLOR_TYPE === ColorTypeMenu.WHITE) {
             color_type = 0x01;
+            r_value = 0xff;
+            g_value = 0xff;
+            b_value = 0xff;
         } else if (args.COLOR_TYPE === ColorTypeMenu.RED) {
             color_type = 0x02;
+            r_value = 0xff;
+            g_value = 0x00;
+            b_value = 0x00;
         } else if (args.COLOR_TYPE === ColorTypeMenu.YELLOW) {
             color_type = 0x03;
+            r_value = 0xff;
+            g_value = 0xff;
+            b_value = 0x00;
         } else if (args.COLOR_TYPE === ColorTypeMenu.GREEN) {
             color_type = 0x04;
+            r_value = 0x00;
+            g_value = 0xff;
+            b_value = 0x00;
         } else if (args.COLOR_TYPE === ColorTypeMenu.BLUE) {
             color_type = 0x05;
+            r_value = 0x00;
+            g_value = 0x00;
+            b_value = 0xff;
         } else if (args.COLOR_TYPE === ColorTypeMenu.PURPLE) {
             color_type = 0x06;
+            r_value = 0xff;
+            g_value = 0x00;
+            b_value = 0xff;
         } else if (args.COLOR_TYPE === ColorTypeMenu.BLACK) {
             color_type = 0x07;
+            r_value = 0x00;
+            g_value = 0x00;
+            b_value = 0x00;
         }
 
         if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV1) {
