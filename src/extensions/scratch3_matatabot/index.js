@@ -567,7 +567,7 @@ const MotionGearMenu = {
     GEAR5: 'gear 5',
     GEAR6: 'gear 6',
     STOP:  'stop',
-    NULL:  'null',
+    NULL:  'unchanged',
     ROLL_DICE: 'roll dice'
 };
 
@@ -1023,9 +1023,9 @@ class Scratch3MatataBotBlocks {
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.motionGearMenu.null',
-                    default: 'null',
-                    description: 'label for matatabot gear null'
+                    id: 'matatabot.motionGearMenu.unchanged',
+                    default: 'unchanged',
+                    description: 'label for matatabot gear unchanged'
                 }),
                 value: MotionGearMenu.NULL
             },
@@ -1961,7 +1961,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'eyeLedSingleSet2',
                     text: formatMessage({
                         id: 'matatabot.eyeLedSingleSet2',
-                        default: 'set [SIDE] eye [COLOR]',
+                        default: 'set [SIDE] eye to [COLOR]',
                         description: 'set eye LED function 2'
                     }),
                     blockType: BlockType.COMMAND,

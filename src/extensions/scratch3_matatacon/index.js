@@ -1454,7 +1454,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'lightRingLedSingleSet2',
                     text: formatMessage({
                         id: 'matatacon.lightRingLedSingleSet2',
-                        default: 'set LED [LED_INDEX] of color [COLOR_VALUE]',
+                        default: 'set LED [LED_INDEX] to [COLOR_VALUE]',
                         description: 'set single LED function 2'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1507,7 +1507,7 @@ class Scratch3MatataConBlocks {
                         LIGHT_EFFECT: {
                             type: ArgumentType.STRING,
                             menu: 'lightEffect',
-                            defaultValue: LightEffectMenu.FIREFLY
+                            defaultValue: LightEffectMenu.METEOR
                         }
                     }
                 },
