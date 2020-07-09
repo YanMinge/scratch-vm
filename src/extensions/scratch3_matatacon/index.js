@@ -1428,7 +1428,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'lightRingLedSingleSet1',
                     text: formatMessage({
                         id: 'matatacon.lightRingLedSingleSet1',
-                        default: 'set [LED_INDEX] LED of color [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
+                        default: 'set [LED_INDEX] LED to [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
                         description: 'set single LED function 1'
                     }),
                     blockType: BlockType.COMMAND,

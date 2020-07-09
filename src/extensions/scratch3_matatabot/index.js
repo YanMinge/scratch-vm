@@ -1935,7 +1935,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'eyeLedSingleSet1',
                     text: formatMessage({
                         id: 'matatabot.eyeLedSingleSet1',
-                        default: 'set [SIDE] eye [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
+                        default: 'set [SIDE] eye to [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
                         description: 'set eye LED function 1'
                     }),
                     blockType: BlockType.COMMAND,
