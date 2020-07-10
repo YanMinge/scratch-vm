@@ -2877,7 +2877,6 @@ class Scratch3MatataBotBlocks {
     eyeLedSingleSet1 (args) {
         const eyeLedSingleSet1Data = new Array();
         let led_index = 0x03;
-        let color_type = 0x01;
         let brightness_level = 0x01;
         let r_value = 0xff;
         let g_value = 0xff;
@@ -2892,62 +2891,55 @@ class Scratch3MatataBotBlocks {
         }
 
         if (args.COLOR_TYPE === ColorTypeMenu.WHITE) {
-            color_type = 0x01;
             r_value = 0xff;
             g_value = 0xff;
             b_value = 0xff;
         } else if (args.COLOR_TYPE === ColorTypeMenu.RED) {
-            color_type = 0x02;
             r_value = 0xff;
             g_value = 0x00;
             b_value = 0x00;
         } else if (args.COLOR_TYPE === ColorTypeMenu.YELLOW) {
-            color_type = 0x03;
             r_value = 0xff;
             g_value = 0xff;
             b_value = 0x00;
         } else if (args.COLOR_TYPE === ColorTypeMenu.GREEN) {
-            color_type = 0x04;
             r_value = 0x00;
             g_value = 0xff;
             b_value = 0x00;
         } else if (args.COLOR_TYPE === ColorTypeMenu.BLUE) {
-            color_type = 0x05;
             r_value = 0x00;
             g_value = 0x00;
             b_value = 0xff;
         } else if (args.COLOR_TYPE === ColorTypeMenu.PURPLE) {
-            color_type = 0x06;
             r_value = 0xff;
             g_value = 0x00;
             b_value = 0xff;
         } else if (args.COLOR_TYPE === ColorTypeMenu.BLACK) {
-            color_type = 0x07;
             r_value = 0x00;
             g_value = 0x00;
             b_value = 0x00;
         }
 
         if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV1) {
-            brightness_level = 0x01;
+            brightness_level = 1;
         } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV2) {
-            brightness_level = 0x02;
+            brightness_level = 8;
         } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV3) {
-            brightness_level = 0x03;
+            brightness_level = 27;
         } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV4) {
-            brightness_level = 0x04;
+            brightness_level = 64;
         } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV5) {
-            brightness_level = 0x05;
+            brightness_level = 125;
         } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV6) {
-            brightness_level = 0x06;
+            brightness_level = 216;
         } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.ROLL_DICE) {
-            brightness_level = this.rollDice();
+            brightness_level = this.rollDice() * this.rollDice() * this.rollDice();
         }
         eyeLedSingleSet1Data.push(BLECommand.CMD_EYE_LED);
         eyeLedSingleSet1Data.push(led_index);
-        eyeLedSingleSet1Data.push((r_value * brightness_level) / 6);
-        eyeLedSingleSet1Data.push((g_value * brightness_level) / 6);
-        eyeLedSingleSet1Data.push((b_value * brightness_level) / 6);
+        eyeLedSingleSet1Data.push((r_value * brightness_level) / 216);
+        eyeLedSingleSet1Data.push((g_value * brightness_level) / 216);
+        eyeLedSingleSet1Data.push((b_value * brightness_level) / 216);
         this._peripheral.commandSyncFlag.eyeLedSingleSet1Flag = true;
         this._peripheral.send(this._peripheral.packCommand(eyeLedSingleSet1Data));
         return new Promise(resolve => {
