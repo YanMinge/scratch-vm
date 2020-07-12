@@ -53,6 +53,9 @@ const PalyMusicCommand = {
     PLAY_STOP:            0x04
 };
 
+const MATATABOT_LATEST_FIRMWARE_VERSION = '1.0.0';
+const MATATACON_LATEST_FIRMWARE_VERSION = '1.0.0';
+
 /**
  * A time interval to wait (in milliseconds) before reporting to the BLE socket
  * that data has stopped coming from the peripheral.
@@ -296,8 +299,8 @@ class MatataBot {
         }
         command_array.push(crc >> 8);
         command_array.push(crc & 0xff);
-        console.log(command_array);
-        return command_array;
+        // console.log(command_array);
+        return command_array;   
     }
 
     depackCommand (command_data) {
@@ -333,7 +336,7 @@ class MatataBot {
                 }
             }
         }
-        console.log(this._receivedCommand);
+        // console.log(this._receivedCommand);
         if (this._receivedCommand.length > 3) {
             this._receivedCommandLength = this._receivedCommand[1] & 0xff;
             // console.log(this._receivedCommandLength);
@@ -434,8 +437,10 @@ class MatataBot {
             break;
         }
         case BLECommand.CMD_CHECK_VERSION: {
-            console.log('get version!');
-            console.log(command_data);
+            console.log('-----2222------', command_data);
+            if(this.onGetFirmwareVersion) {
+                this.onGetFirmwareVersion(command_data);
+            }
             break;
         }
         case BLECommand.CMD_HEARTBEAT: {
@@ -459,7 +464,7 @@ class MatataBot {
         this._receivedCommandStart = false;
     }
 
-    setNewProtocol () {
+    setNewProtocol (callback) {
         const setNewProtocolData = new Array();
         setNewProtocolData.push(BLECommand.CMD_SET_NEW_PROTOCOL);
         setNewProtocolData.push(0x02);
@@ -476,9 +481,12 @@ class MatataBot {
                     clearInterval(interval);
                     this.commandSyncFlag.setNewProtocolFlag = false;
                     this.disconnect();
+                    callback && callback(false);
                     resolve(false);
                 } else if (this.commandSyncFlag.setNewProtocolFlag === false) {
+                    console.log('setNewProtocol success!');
                     clearInterval(interval);
+                    callback && callback(true);
                     resolve(true);
                 }
                 count += 100;
@@ -490,6 +498,13 @@ class MatataBot {
         const cmd = [BLECommand.CMD_CHECK_VERSION, 0x02, 0x02, 0x00, 0x00];
         console.log(cmd);
         this.send(this.packCommand(cmd));
+        this.onGetFirmwareVersion = (version) =>{
+            // 这里判断固件版本号
+            console.log('获取到了固件版本号', version);
+            if(version !== MATATABOT_LATEST_FIRMWARE_VERSION) {
+                matata.showFirmwareModal();
+            }
+        }
     }
 
     /**
@@ -502,13 +517,16 @@ class MatataBot {
         // 切换固件协议，如果超时无返回，提示版本不匹配，需要升级。
         // 如果成功返回，通过系统信息获取命令（0x01)，获取系统版本号，该版本号与指定的版本进行比较，
         // 如果固件是更旧的版本，提示升级
-
-        const doConnect = async () => {
-            this.setNewProtocol();
-            // let result = await this.setNewProtocol();
-            // console.log(1111, result);
-        };
-        doConnect();
+        this.setNewProtocol((state) => {
+            console.log('set new protocol state', state);
+            if(state) {
+                // 设置协议成功，发送版本查询指令，获取固件版本号并进行比对
+                this.checkVersion();
+            } else {
+                // 设置协议超时了，需要提示固件升级
+                matata.showFirmwareModal();
+            }
+        });
     }
 
     /**
