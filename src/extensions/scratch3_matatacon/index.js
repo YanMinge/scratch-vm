@@ -1496,6 +1496,21 @@ class Scratch3MatataConBlocks {
                     }
                 },
                 {
+                    opcode: 'lightRingLedSingleSet4',
+                    text: formatMessage({
+                        id: 'matatacon.lightRingLedSingleSet4',
+                        default: 'set led lamp panel [PANEL]',
+                        description: 'set led lamp panel'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        PANEL: {
+                            type: 'face',
+                            defaultValue: '111111111111'
+                        }
+                    }
+                },
+                {
                     opcode: 'lightRingShowEffect',
                     text: formatMessage({
                         id: 'matatacon.lightRingShowEffect',
@@ -1952,6 +1967,10 @@ class Scratch3MatataConBlocks {
                 count += 10;
             }, 10);
         });
+    }
+
+    lightRingLedSingleSet4 (args) {
+        console.log('args: ', args);
     }
 
     lightRingShowEffect (args) {
