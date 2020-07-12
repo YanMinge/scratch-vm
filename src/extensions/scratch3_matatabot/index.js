@@ -342,7 +342,7 @@ class MatataBot {
             // console.log(this._receivedCommandLength);
         }
         if (this._receivedCommand.length >= this._receivedCommandLength + 2) {
-            this.parseCommand();
+            this.parseCommand(command_data);
         }
     }
 
@@ -417,7 +417,7 @@ class MatataBot {
         }
     }
 
-    parseCommand () {
+    parseCommand (oringinData) {
         if (this.checkCRC() === false) {
             console.log('checkCRC false!');
             this._receivedCommand = this._receivedCommand.slice(this._receivedCommandLength + 2);
@@ -437,7 +437,6 @@ class MatataBot {
             break;
         }
         case BLECommand.CMD_CHECK_VERSION: {
-            console.log('-----2222------', command_data);
             if(this.onGetFirmwareVersion) {
                 this.onGetFirmwareVersion(command_data);
             }
@@ -462,6 +461,16 @@ class MatataBot {
         this._receivedCommand = this._receivedCommand.slice(this._receivedCommandLength + 2);
         this._receivedCommandLength = 0;
         this._receivedCommandStart = false;
+    }
+
+
+    Uint8ArrayToString(fileData){
+        var dataString = "";
+        for (var i = 0; i < fileData.length; i++) {
+        dataString += String.fromCharCode(fileData[i]);
+        }
+    
+        return dataString
     }
 
     setNewProtocol (callback) {
@@ -495,11 +504,13 @@ class MatataBot {
     }
 
     checkVersion() {
-        const cmd = [BLECommand.CMD_CHECK_VERSION, 0x02, 0x02, 0x00, 0x00];
+        const cmd = [BLECommand.CMD_CHECK_VERSION, 0x01];
         console.log(cmd);
         this.send(this.packCommand(cmd));
-        this.onGetFirmwareVersion = (version) =>{
-            // 这里判断固件版本号
+        window.sendCommand = this.sendCommand;
+        this.onGetFirmwareVersion = (versionData) =>{
+            // TODO: 这里判断固件版本号
+            const version = versionData;
             console.log('获取到了固件版本号', version);
             if(version !== MATATABOT_LATEST_FIRMWARE_VERSION) {
                 matata.showFirmwareModal();
@@ -1692,6 +1703,7 @@ class Scratch3MatataBotBlocks {
 
         // Create a new MatataBot peripheral instance
         this._peripheral = new MatataBot(this.runtime, Scratch3MatataBotBlocks.EXTENSION_ID);
+        window.mext = this._peripheral;
     }
 
     /**
