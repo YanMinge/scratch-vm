@@ -342,7 +342,7 @@ class MatataBot {
             // console.log(this._receivedCommandLength);
         }
         if (this._receivedCommand.length >= this._receivedCommandLength + 2) {
-            this.parseCommand(command_data);
+            this.parseCommand();
         }
     }
 
@@ -417,7 +417,7 @@ class MatataBot {
         }
     }
 
-    parseCommand (oringinData) {
+    parseCommand () {
         if (this.checkCRC() === false) {
             console.log('checkCRC false!');
             this._receivedCommand = this._receivedCommand.slice(this._receivedCommandLength + 2);
