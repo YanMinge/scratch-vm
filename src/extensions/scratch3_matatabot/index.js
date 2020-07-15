@@ -692,7 +692,7 @@ const SoundToneMenu = {
     RE:  're',
     MI:  'mi',
     FA:  'fa',
-    SOL: 'sol',
+    SO: 'so',
     LA:  'la',
     TI:  'ti'
 };
@@ -1195,7 +1195,7 @@ class Scratch3MatataBotBlocks {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num1',
                     default: 'the 1st',
-                    description: 'label for matatabot dance 1'
+                    description: 'label for matatabot action 1'
                 }),
                 value: ActionIndexMenu.NUM1
             },
@@ -1203,7 +1203,7 @@ class Scratch3MatataBotBlocks {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num2',
                     default: 'the 2nd',
-                    description: 'label for matatabot dance 2'
+                    description: 'label for matatabot action 2'
                 }),
                 value: ActionIndexMenu.NUM2
             },
@@ -1211,7 +1211,7 @@ class Scratch3MatataBotBlocks {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num3',
                     default: 'the 3rd',
-                    description: 'label for matatabot dance 3'
+                    description: 'label for matatabot action 3'
                 }),
                 value: ActionIndexMenu.NUM3
             },
@@ -1219,7 +1219,7 @@ class Scratch3MatataBotBlocks {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num4',
                     default: 'the 4th',
-                    description: 'label for matatabot dance 4'
+                    description: 'label for matatabot action 4'
                 }),
                 value: ActionIndexMenu.NUM4
             },
@@ -1227,7 +1227,7 @@ class Scratch3MatataBotBlocks {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num5',
                     default: 'the 5th',
-                    description: 'label for matatabot dance 5'
+                    description: 'label for matatabot action 5'
                 }),
                 value: ActionIndexMenu.NUM5
             },
@@ -1235,7 +1235,7 @@ class Scratch3MatataBotBlocks {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.num6',
                     default: 'the 6th',
-                    description: 'label for matatabot dance 6'
+                    description: 'label for matatabot action 6'
                 }),
                 value: ActionIndexMenu.NUM6
             },
@@ -1243,7 +1243,7 @@ class Scratch3MatataBotBlocks {
                 text: formatMessage({
                     id: 'matatabot.actionIndexMenu.rollDice',
                     default: 'roll dice',
-                    description: 'label for matatabot dance roll dice'
+                    description: 'label for matatabot action roll dice'
                 }),
                 value: ActionIndexMenu.ROLL_DICE
             }
@@ -1353,11 +1353,11 @@ class Scratch3MatataBotBlocks {
             },
             {
                 text: formatMessage({
-                    id: 'matatabot.soundTone.sol',
-                    default: 'sol',
-                    description: 'label for matatabot tone sol'
+                    id: 'matatabot.soundTone.so',
+                    default: 'so',
+                    description: 'label for matatabot tone so'
                 }),
-                value: SoundToneMenu.SOL
+                value: SoundToneMenu.SO
             },
             {
                 text: formatMessage({
@@ -1643,7 +1643,7 @@ class Scratch3MatataBotBlocks {
                 text: formatMessage({
                     id: 'matatabot.brightnessLevelMenu.lev2',
                     default: '2',
-                    description: 'led brightness level 1'
+                    description: 'led brightness level 2'
                 }),
                 value: BrightnessLevelMenu.LEV2
             },
@@ -1814,7 +1814,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'motionWheelPower',
                     text: formatMessage({
                         id: 'matatabot.motionWheelPower',
-                        default: 'left wheel [LEFT_DIR] speed [LEFT_GEAR], right wheel [RIGHT_DIR] speed [RIGHT_GEAR]',
+                        default: 'set left wheel [LEFT_DIR] speed [LEFT_GEAR], set right wheel [RIGHT_DIR] speed [RIGHT_GEAR]',
                         description: 'left motor gear move and right motor gear move'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1845,7 +1845,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'motionWheelSpeed',
                     text: formatMessage({
                         id: 'matatabot.motionWheelSpeed',
-                        default: 'set left motor speed [LEFT] cm/s, right motor speed [RIGHT] cm/s',
+                        default: 'set left motor speed [LEFT] cm/s, set right motor speed [RIGHT] cm/s',
                         description: 'left motor speed and right motor speed'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1880,7 +1880,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'doDance',
                     text: formatMessage({
                         id: 'matatabot.doDance',
-                        default: '[DANCE_INDEX] dance',
+                        default: 'perform [DANCE_INDEX] dance',
                         description: 'Dance'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1896,7 +1896,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'doAction',
                     text: formatMessage({
                         id: 'matatabot.doAction',
-                        default: '[ACTION_INDEX] action',
+                        default: 'perform [ACTION_INDEX] action',
                         description: 'Action'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1954,7 +1954,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'soundMelody',
                     text: formatMessage({
                         id: 'matatabot.soundMelody',
-                        default: '[MELODY] melody',
+                        default: 'play [MELODY] melody',
                         description: 'play a melody'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1970,7 +1970,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'soundSong',
                     text: formatMessage({
                         id: 'matatabot.soundSong',
-                        default: '[SONG] song',
+                        default: 'play [SONG] song',
                         description: 'play a sound'
                     }),
                     blockType: BlockType.COMMAND,
@@ -2720,7 +2720,7 @@ class Scratch3MatataBotBlocks {
             tone_freq = noteFreq.E3;
         } else if (args.TONE === SoundToneMenu.FA) {
             tone_freq = noteFreq.F3;
-        } else if (args.TONE === SoundToneMenu.SOL) {
+        } else if (args.TONE === SoundToneMenu.SO) {
             tone_freq = noteFreq.G3;
         } else if (args.TONE === SoundToneMenu.LA) {
             tone_freq = noteFreq.A3;
@@ -2783,7 +2783,7 @@ class Scratch3MatataBotBlocks {
             tone_freq = noteFreq.E4;
         } else if (args.TONE === SoundToneMenu.FA) {
             tone_freq = noteFreq.F4;
-        } else if (args.TONE === SoundToneMenu.SOL) {
+        } else if (args.TONE === SoundToneMenu.SO) {
             tone_freq = noteFreq.G4;
         } else if (args.TONE === SoundToneMenu.LA) {
             tone_freq = noteFreq.A4;
