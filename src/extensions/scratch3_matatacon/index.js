@@ -758,12 +758,12 @@ const ButtonKeyMenu = {
 
 const MotinStatusMenu = {
     SHAKEN:        'shaken',
-    UP:            'up',
-    DOWN:          'down',
+    UP:            'face up',
+    DOWN:          'face down',
     LEFT:          'tilted left',
     RIGHT:         'tilted right',
-    FRONT:         'tilted front',
-    BACK:          'tilted back',
+    FRONT:         'tilted down',
+    BACK:          'tilted up',
     FREE_FALL:     'free fall'
 };
 
@@ -932,7 +932,7 @@ class Scratch3MatataConBlocks {
             {
                 text: formatMessage({
                     id: 'matatacon.motinStatusMenu.up',
-                    default: 'up',
+                    default: 'face up',
                     description: 'The sensor is up'
                 }),
                 value: MotinStatusMenu.UP
@@ -940,7 +940,7 @@ class Scratch3MatataConBlocks {
             {
                 text: formatMessage({
                     id: 'matatacon.motinStatusMenu.down',
-                    default: 'down',
+                    default: 'face down',
                     description: 'The sensor is down'
                 }),
                 value: MotinStatusMenu.DOWN
@@ -964,7 +964,7 @@ class Scratch3MatataConBlocks {
             {
                 text: formatMessage({
                     id: 'matatacon.motinStatusMenu.front',
-                    default: 'tilted front',
+                    default: 'tilted down',
                     description: 'The sensor is front'
                 }),
                 value: MotinStatusMenu.FRONT
@@ -972,7 +972,7 @@ class Scratch3MatataConBlocks {
             {
                 text: formatMessage({
                     id: 'matatacon.motinStatusMenu.back',
-                    default: 'tilted back',
+                    default: 'tilted up',
                     description: 'The sensor is back'
                 }),
                 value: MotinStatusMenu.BACK
@@ -1291,7 +1291,7 @@ class Scratch3MatataConBlocks {
                 text: formatMessage({
                     id: 'matatacon.brightnessLevelMenu.lev2',
                     default: '2',
-                    description: 'led brightness level 1'
+                    description: 'led brightness level 2'
                 }),
                 value: BrightnessLevelMenu.LEV2
             },
@@ -1362,7 +1362,7 @@ class Scratch3MatataConBlocks {
                     default: 'three',
                     description: 'message index three'
                 }),
-                value: MessageIndexMenu.LEV1
+                value: MessageIndexMenu.MSG3
             },
             {
                 text: formatMessage({
@@ -1370,7 +1370,7 @@ class Scratch3MatataConBlocks {
                     default: 'four',
                     description: 'message index four'
                 }),
-                value: MessageIndexMenu.LEV1
+                value: MessageIndexMenu.MSG4
             },
             {
                 text: formatMessage({
@@ -1378,7 +1378,7 @@ class Scratch3MatataConBlocks {
                     default: 'five',
                     description: 'message index five'
                 }),
-                value: MessageIndexMenu.LEV1
+                value: MessageIndexMenu.MSG5
             },
             {
                 text: formatMessage({
@@ -1386,7 +1386,7 @@ class Scratch3MatataConBlocks {
                     default: 'six',
                     description: 'message index six'
                 }),
-                value: MessageIndexMenu.LEV1
+                value: MessageIndexMenu.MSG6
             },
             {
                 text: formatMessage({
@@ -1499,7 +1499,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'lightRingLedSingleSet4',
                     text: formatMessage({
                         id: 'matatacon.lightRingLedSingleSet4',
-                        default: 'set led lamp panel [PANEL]',
+                        default: 'set led ring light [PANEL]',
                         description: 'set led lamp panel'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1514,7 +1514,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'lightRingShowEffect',
                     text: formatMessage({
                         id: 'matatacon.lightRingShowEffect',
-                        default: 'Lamp ring show [LIGHT_EFFECT]',
+                        default: 'LED ring light show [LIGHT_EFFECT]',
                         description: 'Lamp ring display the set lighting effect'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1555,8 +1555,8 @@ class Scratch3MatataConBlocks {
                     opcode: 'waitIRMessage',
                     text: formatMessage({
                         id: 'matatacon.waitIRMessage',
-                        default: 'wait message [MESSAGE_INDEX]',
-                        description: 'wait IR message'
+                        default: 'wait for message [MESSAGE_INDEX]',
+                        description: 'wait for IR message'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
@@ -1587,7 +1587,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'motionSensorStatus',
                     text: formatMessage({
                         id: 'matatacon.motionSensorStatus',
-                        default: 'sensor occurs [MOTION_STATUS]?',
+                        default: 'sensing [MOTION_STATUS]?',
                         description: 'is status happened on sensor ?'
                     }),
                     blockType: BlockType.BOOLEAN,
@@ -1603,7 +1603,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'recognizeColor',
                     text: formatMessage({
                         id: 'matatacon.recognizeColor',
-                        default: 'recognize color [COLOR_TYPE]?',
+                        default: 'detect color [COLOR_TYPE]?',
                         description: 'Whether the specified color is recognized ?'
                     }),
                     blockType: BlockType.BOOLEAN,
@@ -1619,7 +1619,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'isHearSomething',
                     text: formatMessage({
                         id: 'matatacon.isHearSomething',
-                        default: 'hear something?',
+                        default: 'hear sound?',
                         description: 'Whether hear something ?'
                     }),
                     blockType: BlockType.BOOLEAN
@@ -1628,7 +1628,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'isObstaclesAhead',
                     text: formatMessage({
                         id: 'matatacon.isObstaclesAhead',
-                        default: 'obstacles ahead?',
+                        default: 'meet obstacles?',
                         description: 'Whether obstacles ahead ?'
                     }),
                     blockType: BlockType.BOOLEAN
@@ -1637,7 +1637,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'isBrightness',
                     text: formatMessage({
                         id: 'matatacon.isBrightness',
-                        default: 'is brightness?',
+                        default: 'detect brightness?',
                         description: 'Whether detect brightness ?'
                     }),
                     blockType: BlockType.BOOLEAN
@@ -1673,7 +1673,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'getShakingStrength',
                     text: formatMessage({
                         id: 'matatacon.getShakingStrength',
-                        default: 'shaking strength',
+                        default: 'shaking intensity',
                         description: 'get shaking strength'
                     }),
                     blockType: BlockType.REPORTER
@@ -1691,7 +1691,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'getRGBColor',
                     text: formatMessage({
                         id: 'matatacon.getRGBColor',
-                        default: '[COLOR_CHANNEL]color value',
+                        default: '[COLOR_CHANNEL] color value',
                         description: 'get RGB color value'
                     }),
                     blockType: BlockType.REPORTER,
@@ -1707,7 +1707,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'getAcceleration',
                     text: formatMessage({
                         id: 'matatacon.getAcceleration',
-                        default: '[AXIS_VALUE]acceleration',
+                        default: '[AXIS_VALUE] acceleration',
                         description: 'get acceleration value'
                     }),
                     blockType: BlockType.REPORTER,
@@ -1755,7 +1755,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'whenHearSomething',
                     text: formatMessage({
                         id: 'matatacon.whenHearSomething',
-                        default: 'when hear something',
+                        default: 'when hear sound',
                         description: 'when hear something'
                     }),
                     blockType: BlockType.HAT
