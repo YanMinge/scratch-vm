@@ -53,8 +53,7 @@ const PalyMusicCommand = {
     PLAY_STOP:            0x04
 };
 
-const MATATABOT_LATEST_FIRMWARE_VERSION = '1.0.0';
-const MATATACON_LATEST_FIRMWARE_VERSION = '1.0.0';
+const MATATABOT_LATEST_FIRMWARE_VERSION = '1.0.0'; // 最新固件在这里设置
 
 /**
  * A time interval to wait (in milliseconds) before reporting to the BLE socket
@@ -443,12 +442,10 @@ class MatataBot {
             break;
         }
         case BLECommand.CMD_HEARTBEAT: {
-            // eslint-disable-next-line no-unused-vars
-            let device = null;
             if (command_data[2] === 0x02) {
-                device = 'MatataCon';
+                this.device = 'MatataCon';
             } else {
-                device = 'MatataBot';
+                this.device = 'MatataBot';
             }
             // console.log("get %s heartbeat", device);
             break;
@@ -508,12 +505,14 @@ class MatataBot {
         console.log(cmd);
         this.send(this.packCommand(cmd));
         window.sendCommand = this.sendCommand;
+        const deviceType = this.device.toLowderCase() || '';
         this.onGetFirmwareVersion = (versionData) =>{
-            // TODO: 这里判断固件版本号
-            const version = versionData;
+            // 这里判断固件版本号, 返回数据格式示例：[13,1,1,2,2,19,1,1,0,0,0,2]
+            // 02，02，19 就是版本号，取第4到第6位即可。
+            const version = versionData[3] + '.' + versionData[4] + '.' + versionData[5];
             console.log('获取到了固件版本号', version);
             if(version !== MATATABOT_LATEST_FIRMWARE_VERSION) {
-                matata.showFirmwareModal();
+                matata.showFirmwareModal(deviceType, version);
             }
         }
     }
@@ -527,7 +526,7 @@ class MatataBot {
         this._ble.startNotifications(BLEINFO.service, BLEINFO.rxChar, this._onMessage);
         // 切换固件协议，如果超时无返回，提示版本不匹配，需要升级。
         // 如果成功返回，通过系统信息获取命令（0x01)，获取系统版本号，该版本号与指定的版本进行比较，
-        // 如果固件是更旧的版本，提示升级
+        // 如果固件是更旧的版本，提示升级。版本号格式示例：
         this.setNewProtocol((state) => {
             console.log('set new protocol state', state);
             if(state) {
