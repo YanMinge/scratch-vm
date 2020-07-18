@@ -139,6 +139,7 @@ class MatataBot {
         this._receivedCommandStart = false;
         this._receivedCommandLength = 0;
         this._lastFrameReservedData = null;
+        this.device = 'MatataBot';
 
         this.commandSyncFlag = {
             motionForwardStepFlag: false,
@@ -502,10 +503,9 @@ class MatataBot {
 
     checkVersion() {
         const cmd = [BLECommand.CMD_CHECK_VERSION, 0x01];
-        console.log(cmd);
         this.send(this.packCommand(cmd));
         window.sendCommand = this.sendCommand;
-        const deviceType = this.device.toLowderCase() || '';
+        const deviceType = this.device;
         this.onGetFirmwareVersion = (versionData) =>{
             // 这里判断固件版本号, 返回数据格式示例：[13,1,1,2,2,19,1,1,0,0,0,2]
             // 02，02，19 就是版本号，取第4到第6位即可。
@@ -1985,7 +1985,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'eyeLedSingleSet1',
                     text: formatMessage({
                         id: 'matatabot.eyeLedSingleSet1',
-                        default: 'set [SIDE] eye to [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
+                        default: 'set [SIDE] eye(s) to [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
                         description: 'set eye LED function 1'
                     }),
                     blockType: BlockType.COMMAND,
@@ -2011,7 +2011,7 @@ class Scratch3MatataBotBlocks {
                     opcode: 'eyeLedSingleSet2',
                     text: formatMessage({
                         id: 'matatabot.eyeLedSingleSet2',
-                        default: 'set [SIDE] eye to [COLOR]',
+                        default: 'set [SIDE] eye(s) to color [COLOR]',
                         description: 'set eye LED function 2'
                     }),
                     blockType: BlockType.COMMAND,
@@ -2961,7 +2961,7 @@ class Scratch3MatataBotBlocks {
             g_value = 0x00;
             b_value = 0xff;
         } else if (args.COLOR_TYPE === ColorTypeMenu.PURPLE) {
-            r_value = 0xff;
+            r_value = 0x80;
             g_value = 0x00;
             b_value = 0xff;
         } else if (args.COLOR_TYPE === ColorTypeMenu.BLACK) {

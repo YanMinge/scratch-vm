@@ -144,6 +144,7 @@ class MatataCon {
             lightRingLedSingleSet1Flag: false,
             lightRingLedSingleSet2Flag: false,
             lightRingLedSingleSet3Flag: false,
+            lightRingLedSingleSet4Flag: false,
             lightRingEffectFlag: false,
             lightRingAllLedOffFlag: false,
             sendIRmessageFlag: false,
@@ -394,6 +395,9 @@ class MatataCon {
         }
         if (this.commandSyncFlag.lightRingLedSingleSet3Flag === true) {
             this.commandSyncFlag.lightRingLedSingleSet3Flag = false;
+        }
+        if (this.commandSyncFlag.lightRingLedSingleSet4Flag === true) {
+            this.commandSyncFlag.lightRingLedSingleSet4Flag = false;
         }
         if (this.commandSyncFlag.sendIRmessageFlag === true) {
             this.commandSyncFlag.sendIRmessageFlag = false;
@@ -1428,7 +1432,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'lightRingLedSingleSet1',
                     text: formatMessage({
                         id: 'matatacon.lightRingLedSingleSet1',
-                        default: 'set [LED_INDEX] LED to [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
+                        default: 'set [LED_INDEX] LED(s) to [COLOR_TYPE] and brightness is level [BRIGHTNESS_LEVEL]',
                         description: 'set single LED function 1'
                     }),
                     blockType: BlockType.COMMAND,
@@ -1454,14 +1458,15 @@ class Scratch3MatataConBlocks {
                     opcode: 'lightRingLedSingleSet2',
                     text: formatMessage({
                         id: 'matatacon.lightRingLedSingleSet2',
-                        default: 'set LED [LED_INDEX] to [COLOR_VALUE]',
+                        default: 'set [LED_INDEX] LED(s) to color [COLOR_VALUE]',
                         description: 'set single LED function 2'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
                         LED_INDEX: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 0
+                            type: ArgumentType.STRING,
+                            menu: 'ledRingIndex',
+                            defaultValue: LedRingIndexMenu.ALL
                         },
                         COLOR_VALUE: {
                             type: ArgumentType.COLOR
@@ -1530,7 +1535,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'lightRingAllLedOff',
                     text: formatMessage({
                         id: 'matatacon.lightRingAllLedOff',
-                        default: 'turn all LED off',
+                        default: 'turn all LEDs off',
                         description: 'turn all led off'
                     }),
                     blockType: BlockType.COMMAND
@@ -1571,7 +1576,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'isButtonPressed',
                     text: formatMessage({
                         id: 'matatacon.isButtonPressed',
-                        default: '[BUTTON_KEY] is pressed?',
+                        default: 'button [BUTTON_KEY] pressed?',
                         description: 'Whether the button is pressed ?'
                     }),
                     blockType: BlockType.BOOLEAN,
@@ -1628,8 +1633,8 @@ class Scratch3MatataConBlocks {
                     opcode: 'isObstaclesAhead',
                     text: formatMessage({
                         id: 'matatacon.isObstaclesAhead',
-                        default: 'meet obstacles?',
-                        description: 'Whether obstacles ahead ?'
+                        default: 'meet obstacle?',
+                        description: 'Whether obstacle ahead ?'
                     }),
                     blockType: BlockType.BOOLEAN
                 },
@@ -1900,13 +1905,40 @@ class Scratch3MatataConBlocks {
 
     lightRingLedSingleSet2 (args) {
         const lightRingLedSingleSet2Data = new Array();
-        const led_index = args.LED_INDEX % 12;
         const rgb = cast.toRgbColorObject(args.COLOR_VALUE);
         const red = rgb.r;
         const green = rgb.g;
         const blue = rgb.b;
+        let led_index = 0x0d;
+        if (args.LED_INDEX === LedRingIndexMenu.NUM1) {
+            led_index = 0x01;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM2) {
+            led_index = 0x02;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM3) {
+            led_index = 0x03;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM4) {
+            led_index = 0x04;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM5) {
+            led_index = 0x05;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM6) {
+            led_index = 0x06;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM7) {
+            led_index = 0x07;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM8) {
+            led_index = 0x08;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM9) {
+            led_index = 0x09;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM10) {
+            led_index = 0x0a;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM11) {
+            led_index = 0x0b;
+        } else if (args.LED_INDEX === LedRingIndexMenu.NUM12) {
+            led_index = 0x0c;
+        } else if (args.LED_INDEX === LedRingIndexMenu.ALL) {
+            led_index = 0x0d;
+        }
         lightRingLedSingleSet2Data.push(BLECommand.CMD_LIGHT_RING);
-        if (led_index === 0) {
+        if (led_index === 0x0d) {
             lightRingLedSingleSet2Data.push(LightRingCommand.ALL_LIGHT_RGB_COLOR);
         } else {
             lightRingLedSingleSet2Data.push(LightRingCommand.SINGLE_LIGHT_RGB_COLOR);
@@ -1970,7 +2002,76 @@ class Scratch3MatataConBlocks {
     }
 
     lightRingLedSingleSet4 (args) {
-        console.log('args: ', args);
+        const lightRingLedSingleSet4Data = new Array();
+        const color_array_raw = args.PANEL.match(/./g);
+        let color_arr = new Array(12);
+        for (let key in color_array_raw) {
+            color_arr[key] =  color_array_raw[(parseInt(key) + 11) % 12];
+        }
+        let r_value = 0;
+        let g_value = 0;
+        let b_value = 0;
+        lightRingLedSingleSet4Data.push(BLECommand.CMD_LIGHT_RING);
+        lightRingLedSingleSet4Data.push(LightRingCommand.LAMP_PANEL_RGB);
+        for (let key in color_arr) {
+            if (color_arr[key] === '0') {
+                r_value = 0xff;
+                g_value = 0xff;
+                b_value = 0xff;
+            } else if (color_arr[key] === '1') {
+                r_value = 0xff;
+                g_value = 0x00;
+                b_value = 0x00;
+            } else if (color_arr[key] === '2') {
+                r_value = 0xff;
+                g_value = 0x80;
+                b_value = 0x00;
+            } else if (color_arr[key] === '3') {
+                r_value = 0xff;
+                g_value = 0xff;
+                b_value = 0x00;
+            } else if (color_arr[key] === '4') {
+                r_value = 0x00;
+                g_value = 0xff;
+                b_value = 0x00;
+            } else if (color_arr[key] === '5') {
+                r_value = 0x00;
+                g_value = 0xff;
+                b_value = 0xff;
+            } else if (color_arr[key] === '6') {
+                r_value = 0x00;
+                g_value = 0x00;
+                b_value = 0xff;
+            } else if (color_arr[key] === '7') {
+                r_value = 0x78;
+                g_value = 0x00;
+                b_value = 0xff;
+            } else if (color_arr[key] === '8') {
+                r_value = 0x00;
+                g_value = 0x00;
+                b_value = 0x00;
+            }
+            lightRingLedSingleSet4Data.push(r_value);
+            lightRingLedSingleSet4Data.push(g_value);
+            lightRingLedSingleSet4Data.push(b_value);
+        }
+        this._peripheral.commandSyncFlag.lightRingLedSingleSet4Flag = true;
+        this._peripheral.send(this._peripheral.packCommand(lightRingLedSingleSet4Data));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 2000) {
+                    console.log('lightRingLedSingleSet4 timeout!');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.lightRingLedSingleSet4Flag = false;
+                    resolve();
+                } else if (this._peripheral.commandSyncFlag.lightRingLedSingleSet4Flag === false) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                count += 10;
+            }, 10);
+        });
     }
 
     lightRingShowEffect (args) {
