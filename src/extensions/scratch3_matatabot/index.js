@@ -426,34 +426,33 @@ class MatataBot {
         }
         let command_data = this._receivedCommand.slice(1, this._receivedCommandLength);
         switch (command_data[1]) {
-        case BLECommand.CMD_SET_NEW_PROTOCOL: {
-            console.log('set new protocol response!');
-            this.commandSyncFlag.setNewProtocolFlag = false;
-            break;
-        }
-        case BLECommand.CMD_GENERAL_RSP: {
-            console.log('get general response!');
-            this.clearCommandSyncFlag();
-            break;
-        }
-        case BLECommand.CMD_CHECK_VERSION: {
-            if(this.onGetFirmwareVersion) {
-                this.onGetFirmwareVersion(command_data);
+            case BLECommand.CMD_SET_NEW_PROTOCOL: {
+                console.log('set new protocol response!');
+                this.commandSyncFlag.setNewProtocolFlag = false;
+                break;
             }
-            break;
-        }
-        case BLECommand.CMD_HEARTBEAT: {
-            if (command_data[2] === 0x02) {
-                this.device = 'MatataCon';
-            } else {
-                this.device = 'MatataBot';
+            case BLECommand.CMD_GENERAL_RSP: {
+                console.log('get general response!');
+                this.clearCommandSyncFlag();
+                break;
             }
-            // console.log("get %s heartbeat", device);
-            break;
-        }
-        default: {
-            break;
-        }
+            case BLECommand.CMD_CHECK_VERSION: {
+                if(this.onGetFirmwareVersion) {
+                    this.onGetFirmwareVersion(command_data);
+                }
+                break;
+            }
+            case BLECommand.CMD_HEARTBEAT: {
+                if (command_data[2] === 0x02) {
+                    this.device = 'MatataCon';
+                } else {
+                    this.device = 'MatataBot';
+                }
+                break;
+            }
+            default: {
+                break;
+            }
         }
 
         this._receivedCommand = this._receivedCommand.slice(this._receivedCommandLength + 2);
@@ -505,14 +504,13 @@ class MatataBot {
         const cmd = [BLECommand.CMD_CHECK_VERSION, 0x01];
         this.send(this.packCommand(cmd));
         window.sendCommand = this.sendCommand;
-        const deviceType = this.device;
         this.onGetFirmwareVersion = (versionData) =>{
             // 这里判断固件版本号, 返回数据格式示例：[13,1,1,2,2,19,1,1,0,0,0,2]
             // 02，02，19 就是版本号，取第4到第6位即可。
             const version = versionData[3] + '.' + versionData[4] + '.' + versionData[5];
             console.log('获取到了固件版本号', version);
             if(version !== MATATABOT_LATEST_FIRMWARE_VERSION) {
-                matata.showFirmwareModal(deviceType, version);
+                matata.showFirmwareModal(this.device, version);
             }
         }
     }
@@ -522,7 +520,6 @@ class MatataBot {
      * @private
      */
     _onConnect () {
-        // this._ble.read(BLEINFO.service, BLEINFO.rxChar, true, this._onMessage);
         this._ble.startNotifications(BLEINFO.service, BLEINFO.rxChar, this._onMessage);
         // 切换固件协议，如果超时无返回，提示版本不匹配，需要升级。
         // 如果成功返回，通过系统信息获取命令（0x01)，获取系统版本号，该版本号与指定的版本进行比较，
@@ -530,11 +527,10 @@ class MatataBot {
         this.setNewProtocol((state) => {
             console.log('set new protocol state', state);
             if(state) {
-                // 设置协议成功，发送版本查询指令，获取固件版本号并进行比对
                 this.checkVersion();
             } else {
                 // 设置协议超时了，需要提示固件升级
-                matata.showFirmwareModal();
+                matata.showFirmwareModal(this.device, 'unknown');
             }
         });
     }
