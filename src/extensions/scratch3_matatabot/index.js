@@ -2160,7 +2160,7 @@ class Scratch3MatataBotBlocks {
         return new Promise(resolve => {
             let count = 0;
             const interval = setInterval(() => {
-                if (count > 1500 * movePos) {
+                if (count > 2000 * movePos) {
                     // eslint-disable-next-line no-console
                     console.log('motionForwardStep timeout');
                     clearInterval(interval);
@@ -2215,7 +2215,7 @@ class Scratch3MatataBotBlocks {
         return new Promise(resolve => {
             let count = 0;
             const interval = setInterval(() => {
-                if (count > 1500 * movePos) {
+                if (count > 2000 * movePos) {
                     console.log('motionBackwardStep timeout');
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.motionForwardStepFlag = false;
