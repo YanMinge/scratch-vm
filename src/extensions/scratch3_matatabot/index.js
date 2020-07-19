@@ -53,7 +53,7 @@ const PalyMusicCommand = {
     PLAY_STOP:            0x04
 };
 
-const MATATABOT_LATEST_FIRMWARE_VERSION = '1.0.0'; // 最新固件在这里设置
+const MATATABOT_LATEST_FIRMWARE_VERSION = '2.2.14'; // 最新固件在这里设置
 
 /**
  * A time interval to wait (in milliseconds) before reporting to the BLE socket
@@ -509,7 +509,10 @@ class MatataBot {
             // 02，02，19 就是版本号，取第4到第6位即可。
             const version = versionData[3] + '.' + versionData[4] + '.' + versionData[5];
             console.log('获取到了固件版本号', version);
-            if(version !== MATATABOT_LATEST_FIRMWARE_VERSION) {
+            const version_array =  MATATABOT_LATEST_FIRMWARE_VERSION.split(".");
+            const latest_version = (parseInt(version_array[0], 10) << 16) + (parseInt(version_array[1], 10) << 8) + parseInt(version_array[2], 10);
+            const current_version = (versionData[3] << 16) + (versionData[4] << 8) + versionData[5];
+            if (latest_version > current_version) {
                 matata.showFirmwareModal(this.device, version);
             }
         }
