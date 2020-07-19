@@ -625,10 +625,10 @@ class MatataCon {
                     clearInterval(interval);
                     this.commandSyncFlag.setBleModeFlag = false;
                     this.disconnect();
-                    resolve();
+                    resolve(false);
                 } else if (this.commandSyncFlag.setBleModeFlag === false) {
                     clearInterval(interval);
-                    resolve();
+                    resolve(true);
                 }
                 count += 100;
             }, 100);
@@ -649,10 +649,10 @@ class MatataCon {
                     console.log('setButtonEventMonitor timeout!');
                     clearInterval(interval);
                     this.commandSyncFlag.buttonEventDetectFlag = false;
-                    resolve();
+                    resolve(false);
                 } else if (this.commandSyncFlag.buttonEventDetectFlag === false) {
                     clearInterval(interval);
-                    resolve();
+                    resolve(true);
                 }
                 count += 10;
             }, 10);
@@ -673,10 +673,10 @@ class MatataCon {
                     console.log('setMotionEventMonitor timeout!');
                     clearInterval(interval);
                     this.commandSyncFlag.motionEventDetectFlag = false;
-                    resolve();
+                    resolve(false);
                 } else if (this.commandSyncFlag.motionEventDetectFlag === false) {
                     clearInterval(interval);
-                    resolve();
+                    resolve(true);
                 }
                 count += 10;
             }, 10);
@@ -697,10 +697,10 @@ class MatataCon {
                     console.log('setSoundEventMonitor timeout!');
                     clearInterval(interval);
                     this.commandSyncFlag.soundEventDetectFlag = false;
-                    resolve();
+                    resolve(false);
                 } else if (this.commandSyncFlag.soundEventDetectFlag === false) {
                     clearInterval(interval);
-                    resolve();
+                    resolve(true);
                 }
                 count += 10;
             }, 10);
@@ -711,7 +711,7 @@ class MatataCon {
         const cmd = [BLECommand.CMD_CHECK_VERSION, 0x01];
         this.send(this.packCommand(cmd));
         window.sendCommand = this.sendCommand;
-        this.onGetFirmwareVersion = (versionData) =>{
+        this.onGetFirmwareVersion = async (versionData) =>{
             // 这里判断固件版本号, 返回数据格式示例：[13,1,1,2,2,19,1,1,0,0,0,2]
             // 02，02，19 就是版本号，取第4到第6位即可。
             const version = versionData[3] + '.' + versionData[4] + '.' + versionData[5];
@@ -725,21 +725,26 @@ class MatataCon {
             }
 
             // 固件核对成功以后，才进行其他模式的处理
-            setTimeout(() => {
-                this.setBlemode();
-            }, 4000);
+            await this.setBlemode();
+            await this.setButtonEventMonitor(0x01);
+            await this.setMotionEventMonitor(0x01);
+            await this.setSoundEventMonitor(0x01);
+
+            // setTimeout(() => {
+            //     this.setBlemode();
+            // }, 4000);
     
-            setTimeout(() => {
-                this.setButtonEventMonitor(0x01);
-            }, 5000);
+            // setTimeout(() => {
+            //     this.setButtonEventMonitor(0x01);
+            // }, 5000);
     
-            setTimeout(() => {
-                this.setMotionEventMonitor(0x01);
-            }, 6000);
+            // setTimeout(() => {
+            //     this.setMotionEventMonitor(0x01);
+            // }, 6000);
     
-            setTimeout(() => {
-                this.setSoundEventMonitor(0x01);
-            }, 7000);
+            // setTimeout(() => {
+            //     this.setSoundEventMonitor(0x01);
+            // }, 7000);
         }
     }
 
