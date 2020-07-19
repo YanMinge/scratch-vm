@@ -611,7 +611,7 @@ class MatataCon {
         });
     }
 
-    setBlemode () {
+    setBlemode (callback) {
         const setBlemodeData = new Array();
         setBlemodeData.push(BLECommand.CMD_BLE_MODE_CONFIG);
         setBlemodeData.push(0x02);
@@ -625,9 +625,11 @@ class MatataCon {
                     clearInterval(interval);
                     this.commandSyncFlag.setBleModeFlag = false;
                     this.disconnect();
+                    callback && callback(false);
                     resolve(false);
                 } else if (this.commandSyncFlag.setBleModeFlag === false) {
                     clearInterval(interval);
+                    callback && callback(true);
                     resolve(true);
                 }
                 count += 100;
@@ -635,7 +637,7 @@ class MatataCon {
         });
     }
 
-    setButtonEventMonitor (enable) {
+    setButtonEventMonitor (enable, callback) {
         const setButtonEventMonitorData = new Array();
         setButtonEventMonitorData.push(BLECommand.CMD_EVENT_DETECT);
         setButtonEventMonitorData.push(0x01);
@@ -649,9 +651,11 @@ class MatataCon {
                     console.log('setButtonEventMonitor timeout!');
                     clearInterval(interval);
                     this.commandSyncFlag.buttonEventDetectFlag = false;
+                    callback && callback(false);
                     resolve(false);
                 } else if (this.commandSyncFlag.buttonEventDetectFlag === false) {
                     clearInterval(interval);
+                    callback && callback(true);
                     resolve(true);
                 }
                 count += 10;
@@ -659,7 +663,7 @@ class MatataCon {
         });
     }
 
-    setMotionEventMonitor (enable) {
+    setMotionEventMonitor (enable, callback) {
         const setMotionEventMonitorData = new Array();
         setMotionEventMonitorData.push(BLECommand.CMD_EVENT_DETECT);
         setMotionEventMonitorData.push(0x02);
@@ -673,9 +677,11 @@ class MatataCon {
                     console.log('setMotionEventMonitor timeout!');
                     clearInterval(interval);
                     this.commandSyncFlag.motionEventDetectFlag = false;
+                    callback && callback(false);
                     resolve(false);
                 } else if (this.commandSyncFlag.motionEventDetectFlag === false) {
                     clearInterval(interval);
+                    callback && callback(true);
                     resolve(true);
                 }
                 count += 10;
@@ -683,7 +689,7 @@ class MatataCon {
         });
     }
 
-    setSoundEventMonitor (enable) {
+    setSoundEventMonitor (enable, callback) {
         const setSoundEventMonitorData = new Array();
         setSoundEventMonitorData.push(BLECommand.CMD_EVENT_DETECT);
         setSoundEventMonitorData.push(0x03);
@@ -697,9 +703,11 @@ class MatataCon {
                     console.log('setSoundEventMonitor timeout!');
                     clearInterval(interval);
                     this.commandSyncFlag.soundEventDetectFlag = false;
+                    callback && callback(false);
                     resolve(false);
                 } else if (this.commandSyncFlag.soundEventDetectFlag === false) {
                     clearInterval(interval);
+                    callback && callback(true);
                     resolve(true);
                 }
                 count += 10;
@@ -711,7 +719,7 @@ class MatataCon {
         const cmd = [BLECommand.CMD_CHECK_VERSION, 0x01];
         this.send(this.packCommand(cmd));
         window.sendCommand = this.sendCommand;
-        this.onGetFirmwareVersion = async (versionData) =>{
+        this.onGetFirmwareVersion = (versionData) =>{
             // 这里判断固件版本号, 返回数据格式示例：[13,1,1,2,2,19,1,1,0,0,0,2]
             // 02，02，19 就是版本号，取第4到第6位即可。
             const version = versionData[3] + '.' + versionData[4] + '.' + versionData[5];
@@ -724,11 +732,28 @@ class MatataCon {
                 return;
             }
 
-            // 固件核对成功以后，才进行其他模式的处理
-            await this.setBlemode();
-            await this.setButtonEventMonitor(0x01);
-            await this.setMotionEventMonitor(0x01);
-            await this.setSoundEventMonitor(0x01);
+            // TODO：固件核对成功以后，才进行其他模式的处理，scratch配置中没有支持 async
+            // await this.setBlemode();
+            // await this.setButtonEventMonitor(0x01);
+            // await this.setMotionEventMonitor(0x01);
+            // await this.setSoundEventMonitor(0x01);
+
+            this.setBlemode((state)=> {
+                console.log('setBlemode', state);
+                if(state) {
+                    this.setButtonEventMonitor(0x01, (state)=> {
+                        console.log('setButtonEventMonitor', state);
+                        if(state) {
+                            this.setMotionEventMonitor(0x01, (state) => {
+                                console.log('setMotionEventMonitor', state);
+                                if(state) {
+                                    this.setSoundEventMonitor(0x01);
+                                }
+                            });
+                        }
+                    });
+                }
+            })
 
             // setTimeout(() => {
             //     this.setBlemode();
