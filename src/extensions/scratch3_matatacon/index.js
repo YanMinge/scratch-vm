@@ -1162,7 +1162,7 @@ class Scratch3MatataConBlocks {
                     default: 'left',
                     description: 'The button is left'
                 }),
-                value:  .LEFT
+                value: ButtonKeyMenu.LEFT
             },
             {
                 text: formatMessage({
