@@ -1162,7 +1162,7 @@ class Scratch3MatataConBlocks {
                     default: 'left',
                     description: 'The button is left'
                 }),
-                value: ButtonKeyMenu.LEFT
+                value:  .LEFT
             },
             {
                 text: formatMessage({
@@ -2312,7 +2312,7 @@ class Scratch3MatataConBlocks {
             key_value = KeyValue.KEY_BACKWARD;
         } else if (args.BUTTON_KEY === ButtonKeyMenu.LEFT) {
             key_value = KeyValue.KEY_LEFT;
-        } else if (args.BUTTON_KEY === ButtonKeyMenu.BACK) {
+        } else if (args.BUTTON_KEY === ButtonKeyMenu.RIGHT) {
             key_value = KeyValue.KEY_RIGHT;
         }
         // console.log('isButtonPressed');
@@ -2676,7 +2676,7 @@ class Scratch3MatataConBlocks {
             key_value = KeyValue.KEY_BACKWARD;
         } else if (args.BUTTON_KEY === ButtonKeyMenu.LEFT) {
             key_value = KeyValue.KEY_LEFT;
-        } else if (args.BUTTON_KEY === ButtonKeyMenu.BACK) {
+        } else if (args.BUTTON_KEY === ButtonKeyMenu.RIGHT) {
             key_value = KeyValue.KEY_RIGHT;
         }
         if (key_value === (this._peripheral.key_value & key_value)){
