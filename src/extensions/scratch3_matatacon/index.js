@@ -328,8 +328,24 @@ class MatataCon {
                 command_array.push(command_data[i]);
             }
         }
-        command_array.push(crc >> 8);
-        command_array.push(crc & 0xff);
+        if ((crc >> 8) === 0xfe) {
+            command_array.push(0xfd);
+            command_array.push(0xde);
+        } else if ((crc >> 8) === 0xfd) {
+            command_array.push(0xfd);
+            command_array.push(0xdd);
+        } else {
+            command_array.push(crc >> 8);;
+        }
+        if ((crc & 0xff) === 0xfe) {
+            command_array.push(0xfd);
+            command_array.push(0xde);
+        } else if ((crc & 0xff) === 0xfd) {
+            command_array.push(0xfd);
+            command_array.push(0xdd);
+        } else {
+            command_array.push(crc & 0xff);
+        }
         console.log(command_array);
         return command_array;
     }
