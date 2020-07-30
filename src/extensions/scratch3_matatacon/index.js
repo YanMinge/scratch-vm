@@ -56,7 +56,7 @@ const GetSensorValueCommand = {
     LIGHT_SENSOR:                       0x02
 };
 
-const MATATACON_LATEST_FIRMWARE_VERSION = '1.0.4'; // 最新固件在这里设置
+const MATATACON_LATEST_FIRMWARE_VERSION = '1.1.0'; // 最新固件在这里设置
 
 /**
  * A time interval to wait (in milliseconds) before reporting to the BLE socket
@@ -143,6 +143,10 @@ class MatataCon {
         this._receivedCommandLength = 0;
         this._lastFrameReservedData = null;
         this.device = 'MatataCon';
+        this.version = new Array(0, 0, 0);
+        this.newProtocolSupportCon = false;
+        this.newProtocolSupportCar = false;
+        this.sensorMode = true;
 
         this.commandSyncFlag = {
             lightRingLedSingleSet1Flag: false,
@@ -172,7 +176,8 @@ class MatataCon {
             getAccelerationYFlag: false,
             getAccelerationZFlag: false,
             setNewProtocolFlag: false,
-            setBleModeFlag: false
+            setBleModeFlag: false,
+            getVersionFlag: false
         };
         
         this.wait_ir_message = 0;
@@ -346,7 +351,11 @@ class MatataCon {
         } else {
             command_array.push(crc & 0xff);
         }
-        console.log(command_array);
+        let log_string = "send: ";
+        for (let i = 0; i < command_array.length; i++) {
+            log_string = log_string + "0x" + command_array[i].toString(16) + ",";
+        }
+        console.log(log_string);
         return command_array;
     }
 
@@ -383,7 +392,11 @@ class MatataCon {
                 }
             }
         }
-        console.log(this._receivedCommand);
+        let log_string = "receive: ";
+        for (let i = 0; i < this._receivedCommand.length; i++) {
+            log_string = log_string + "0x" + this._receivedCommand[i].toString(16) + ",";
+        }
+        console.log(log_string);
         if (this._receivedCommand.length > 3) {
             this._receivedCommandLength = this._receivedCommand[1] & 0xff;
             // console.log(this._receivedCommandLength);
@@ -477,10 +490,10 @@ class MatataCon {
                     this.color_type_match = false;
                 }
                 this.commandSyncFlag.sensorDetectColorTypeFlag = false;
-            } else if (command_data[2] === SensorDetectCommand.IR_MESSAGE) {
-                if (command_data[4] === this.wait_ir_message) {
-                    this.commandSyncFlag.waitIRmessageFlag = false;
-                }
+            } else if ((command_data[2] === SensorDetectCommand.IR_MESSAGE) && (command_data[3] === 0x02)) {
+                this.wait_ir_message = command_data[4];
+                console.log('wait_ir_message(%d)!', this.wait_ir_message);
+                this.commandSyncFlag.waitIRmessageFlag = false;
             } else if (command_data[2] === SensorDetectCommand.OBSTACLE_DETECT) {
                 if (command_data[4] === 1) {
                     this.obstacles_ahead_flag = true;
@@ -570,18 +583,35 @@ class MatataCon {
         }
         case BLECommand.CMD_SET_NEW_PROTOCOL: {
             console.log('set new protocol response!');
+            if (command_data[3] === 0x00) {
+                console.log('newProtocolSupportCar');
+                this.newProtocolSupportCar = true;
+            }
+            if (command_data[4] === 0x00) {
+                console.log('newProtocolSupportCon');
+                this.newProtocolSupportCon = true;
+            }
             this.commandSyncFlag.setNewProtocolFlag = false;
             break;
         }
         case BLECommand.CMD_GENERAL_RSP: {
             console.log('get general response!');
             this.clearCommandSyncFlag();
+            if (command_data[2] == 0x07) {
+                console.log('matatacon is not in sensor mode!');
+                this.sensorMode = false;
+                matata.showFirmwareModal(this.device, 'notSensorMode');
+                this.disconnect();
+            }
             break;
         }
         case BLECommand.CMD_CHECK_VERSION: {
-            if(this.onGetFirmwareVersion) {
-                this.onGetFirmwareVersion(command_data);
-            }
+            this.version[0] = command_data[3];
+            this.version[1] = command_data[4];
+            this.version[2] = command_data[5];
+            let version = command_data[3] + '.' + command_data[4] + '.' + command_data[5];
+            console.log('version:' + version);
+            this.commandSyncFlag.getVersionFlag = false;
             break;
         }
         case BLECommand.CMD_HEARTBEAT: {
@@ -606,21 +636,44 @@ class MatataCon {
     setNewProtocol (callback) {
         const setNewProtocolData = [BLECommand.CMD_SET_NEW_PROTOCOL, 0x02,0x02, 0x00, 0x00];
         this.commandSyncFlag.setNewProtocolFlag = true;
+        this.newProtocolSupportCon = false;
+        this.newProtocolSupportCar = false;
         this.send(this.packCommand(setNewProtocolData));
         return new Promise(resolve => {
             let count = 0;
             const interval = setInterval(() => {
                 if (count > 4000) {
                     console.log('setNewProtocol timeout!');
-                    clearInterval(interval);
                     this.commandSyncFlag.setNewProtocolFlag = false;
-                    this.disconnect();
+                    if (this.sensorMode === true) {
+                        matata.showFirmwareModal(this.device, 'unknown');
+                        this.disconnect();
+                    }
+                    clearInterval(interval);
                     callback && callback(false);
                     resolve(false);
                 } else if (this.commandSyncFlag.setNewProtocolFlag === false) {
-                    clearInterval(interval);
-                    callback && callback(true);
-                    resolve(true);
+                    if (this.newProtocolSupportCon === false) {
+                        if (this.sensorMode === true) {
+                            matata.showFirmwareModal(this.device, 'unknown');
+                            this.disconnect();
+                        }
+                        clearInterval(interval);
+                        callback && callback(false);
+                        resolve(false);
+                    } else if (this.newProtocolSupportCar === false) {
+                        if (this.sensorMode === true) {
+                            matata.showFirmwareModal(this.device, 'carNotSupport');
+                            this.disconnect();
+                        }
+                        clearInterval(interval);
+                        callback && callback(false);
+                        resolve(false);
+                    } else {
+                        clearInterval(interval);
+                        callback && callback(true);
+                        resolve(true);   
+                    }
                 }
                 count += 100;
             }, 100);
@@ -636,7 +689,7 @@ class MatataCon {
         return new Promise(resolve => {
             let count = 0;
             const interval = setInterval(() => {
-                if (count > 1000) {
+                if (count > 2000) {
                     console.log('setBlemode timeout!');
                     clearInterval(interval);
                     this.commandSyncFlag.setBleModeFlag = false;
@@ -731,62 +784,37 @@ class MatataCon {
         });
     }
 
-    checkVersion() {
+    checkVersion (callback) {
         const cmd = [BLECommand.CMD_CHECK_VERSION, 0x01];
+        this.commandSyncFlag.getVersionFlag = true;
         this.send(this.packCommand(cmd));
-        window.sendCommand = this.sendCommand;
-        this.onGetFirmwareVersion = (versionData) =>{
-            // 这里判断固件版本号, 返回数据格式示例：[13,1,1,2,2,19,1,1,0,0,0,2]
-            // 02，02，19 就是版本号，取第4到第6位即可。
-            const version = versionData[3] + '.' + versionData[4] + '.' + versionData[5];
-            console.log('获取到了固件版本号', version);
-            const version_array =  MATATACON_LATEST_FIRMWARE_VERSION.split(".");
-            const latest_version = (parseInt(version_array[0], 10) << 16) + (parseInt(version_array[1], 10) << 8) + parseInt(version_array[2], 10);
-            const current_version = (versionData[3] << 16) + (versionData[4] << 8) + versionData[5];
-            if (latest_version > current_version) {
-                matata.showFirmwareModal(this.device, version);
-                return;
-            }
-
-            // TODO：固件核对成功以后，才进行其他模式的处理，scratch配置中没有支持 async
-            // await this.setBlemode();
-            // await this.setButtonEventMonitor(0x01);
-            // await this.setMotionEventMonitor(0x01);
-            // await this.setSoundEventMonitor(0x01);
-
-            this.setBlemode((state)=> {
-                console.log('setBlemode', state);
-                if(state) {
-                    this.setButtonEventMonitor(0x01, (state)=> {
-                        console.log('setButtonEventMonitor', state);
-                        if(state) {
-                            this.setMotionEventMonitor(0x01, (state) => {
-                                console.log('setMotionEventMonitor', state);
-                                if(state) {
-                                    this.setSoundEventMonitor(0x01);
-                                }
-                            });
-                        }
-                    });
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 1000) {
+                    console.log('checkVersion timeout!');
+                    this.commandSyncFlag.getVersionFlag = false;
+                    callback && callback(false);
+                    matata.showFirmwareModal(this.device, 'unknown');
+                    this.disconnect();
+                    clearInterval(interval);
+                    resolve(false);
+                } else if (this.commandSyncFlag.getVersionFlag === false) {
+                    const version = this.version[0] + '.' + this.version[1] + '.' + this.version[2];
+                    const version_array =  MATATACON_LATEST_FIRMWARE_VERSION.split(".");
+                    const latest_version = (parseInt(version_array[0], 10) << 16) + (parseInt(version_array[1], 10) << 8) + parseInt(version_array[2], 10);
+                    const current_version = (this.version[0] << 16) + (this.version[1] << 8) + this.version[2];
+                    if (latest_version > current_version) {
+                        matata.showFirmwareModal(this.device, version);
+                        this.disconnect();
+                    }
+                    callback && callback(true);
+                    clearInterval(interval);
+                    resolve(true);
                 }
-            })
-
-            // setTimeout(() => {
-            //     this.setBlemode();
-            // }, 4000);
-    
-            // setTimeout(() => {
-            //     this.setButtonEventMonitor(0x01);
-            // }, 5000);
-    
-            // setTimeout(() => {
-            //     this.setMotionEventMonitor(0x01);
-            // }, 6000);
-    
-            // setTimeout(() => {
-            //     this.setSoundEventMonitor(0x01);
-            // }, 7000);
-        }
+                count += 10;
+            }, 10);
+        });
     }
 
     /**
@@ -797,9 +825,23 @@ class MatataCon {
         this._ble.startNotifications(BLEINFO.service, BLEINFO.rxChar, this._onMessage);
         this.setNewProtocol((state) => {
             if(state) {
-                this.checkVersion();
-            } else {
-                matata.showFirmwareModal(this.device, 'unknown');
+                this.checkVersion((state) => {
+                    if (state) {
+                        this.setBlemode((state)=> {
+                            if (state) {
+                                this.setButtonEventMonitor(0x01, (state)=> {
+                                    if (state) {
+                                        this.setMotionEventMonitor(0x01, (state) => {
+                                            if (state) {
+                                                this.setSoundEventMonitor(0x01);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        })
+                    }
+                })
             }
         });
     }
@@ -1637,8 +1679,8 @@ class Scratch3MatataConBlocks {
                     opcode: 'waitIRMessage',
                     text: formatMessage({
                         id: 'matatacon.waitIRMessage',
-                        default: 'wait for message [MESSAGE_INDEX]',
-                        description: 'wait for IR message'
+                        default: 'message [MESSAGE_INDEX] received?',
+                        description: 'Whether the message is received'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
@@ -2278,36 +2320,26 @@ class Scratch3MatataConBlocks {
         waitIRMessageData.push(BLECommand.CMD_SENSOR_DETECT);
         waitIRMessageData.push(SensorDetectCommand.IR_MESSAGE);
         waitIRMessageData.push(0x02); // wait IR message
-        if (this._peripheral.wait_ir_message !== 0) {
-            const cancelCommandData = new Array();
-            cancelCommandData.push(0x84);
-            this._peripheral.send(this._peripheral.packCommand(cancelCommandData));
-            setTimeout(() => {
-                this._peripheral.wait_ir_message = message_index;
-                waitIRMessageData.push(message_index);
-                this._peripheral.commandSyncFlag.waitIRmessageFlag = true;
-                this._peripheral.send(this._peripheral.packCommand(waitIRMessageData));
-            }, 1000);
-        } else {
-            this._peripheral.wait_ir_message = message_index;
-            waitIRMessageData.push(message_index);
-            this._peripheral.commandSyncFlag.waitIRmessageFlag = true;
-            this._peripheral.send(this._peripheral.packCommand(waitIRMessageData));
-        }
+        this._peripheral.wait_ir_message = 0;
+        this._peripheral.commandSyncFlag.waitIRmessageFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(waitIRMessageData));
         return new Promise(resolve => {
             let count = 0;
             const interval = setInterval(() => {
-                if (count > (5 * 3600 * 1000)) {
+                if (count > (2000)) {
                     console.log('waitIRMessage timeout!');
                     clearInterval(interval);
                     this._peripheral.commandSyncFlag.waitIRmessageFlag = false;
                     this._peripheral.wait_ir_message = 0;
-                    resolve();
+                    resolve(false);
                 } else if (this._peripheral.commandSyncFlag.waitIRmessageFlag === false) {
                     console.log('waitIRMessage success!');
                     clearInterval(interval);
-                    this._peripheral.wait_ir_message = 0;
-                    resolve();
+                    if(this._peripheral.wait_ir_message === message_index) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
                 }
                 count += 10;
             }, 10);

@@ -140,6 +140,7 @@ class MatataBot {
         this._receivedCommandLength = 0;
         this._lastFrameReservedData = null;
         this.device = 'MatataBot';
+        this.version = new Array(0, 0, 0);
 
         this.commandSyncFlag = {
             motionForwardStepFlag: false,
@@ -161,7 +162,8 @@ class MatataBot {
             eyeLedSingleSet2Flag: false,
             eyeLedSingleSet3Flag: false,
             eyeLedAllOffFlag: false,
-            setNewProtocolFlag: false
+            setNewProtocolFlag: false,
+            getVersionFlag: false
         };
 
 
@@ -174,7 +176,7 @@ class MatataBot {
      * Called by the runtime when user wants to scan for a peripheral.
      */
     scan () {
-        console.log('123 matatabot start scan...');
+        console.log('matatabot start scan...');
         if (this._ble) {
             this._ble.disconnect();
             console.log('can not search ble device');
@@ -297,9 +299,29 @@ class MatataBot {
                 command_array.push(command_data[i]);
             }
         }
-        command_array.push(crc >> 8);
-        command_array.push(crc & 0xff);
-        // console.log(command_array);
+        if ((crc >> 8) === 0xfe) {
+            command_array.push(0xfd);
+            command_array.push(0xde);
+        } else if ((crc >> 8) === 0xfd) {
+            command_array.push(0xfd);
+            command_array.push(0xdd);
+        } else {
+            command_array.push(crc >> 8);;
+        }
+        if ((crc & 0xff) === 0xfe) {
+            command_array.push(0xfd);
+            command_array.push(0xde);
+        } else if ((crc & 0xff) === 0xfd) {
+            command_array.push(0xfd);
+            command_array.push(0xdd);
+        } else {
+            command_array.push(crc & 0xff);
+        }
+        let log_string = "send: ";
+        for (let i = 0; i < command_array.length; i++) {
+            log_string = log_string + "0x" + command_array[i].toString(16) + ",";
+        }
+        console.log(log_string);
         return command_array;   
     }
 
@@ -336,7 +358,11 @@ class MatataBot {
                 }
             }
         }
-        // console.log(this._receivedCommand);
+        let log_string = "receive: ";
+        for (let i = 0; i < this._receivedCommand.length; i++) {
+            log_string = log_string + "0x" + this._receivedCommand[i].toString(16) + ",";
+        }
+        console.log(log_string);
         if (this._receivedCommand.length > 3) {
             this._receivedCommandLength = this._receivedCommand[1] & 0xff;
             // console.log(this._receivedCommandLength);
@@ -437,9 +463,12 @@ class MatataBot {
                 break;
             }
             case BLECommand.CMD_CHECK_VERSION: {
-                if(this.onGetFirmwareVersion) {
-                    this.onGetFirmwareVersion(command_data);
-                }
+                this.version[0] = command_data[3];
+                this.version[1] = command_data[4];
+                this.version[2] = command_data[5];
+                let version = command_data[3] + '.' + command_data[4] + '.' + command_data[5];
+                console.log('version:' + version);
+                this.commandSyncFlag.getVersionFlag = false;
                 break;
             }
             case BLECommand.CMD_HEARTBEAT: {
@@ -486,6 +515,7 @@ class MatataBot {
                     console.log('setNewProtocol timeout!');
                     clearInterval(interval);
                     this.commandSyncFlag.setNewProtocolFlag = false;
+                    matata.showFirmwareModal(this.device, 'unknown');
                     this.disconnect();
                     callback && callback(false);
                     resolve(false);
@@ -500,22 +530,37 @@ class MatataBot {
         });
     }
 
-    checkVersion() {
+    checkVersion () {
         const cmd = [BLECommand.CMD_CHECK_VERSION, 0x01];
         this.send(this.packCommand(cmd));
-        window.sendCommand = this.sendCommand;
-        this.onGetFirmwareVersion = (versionData) =>{
-            // 这里判断固件版本号, 返回数据格式示例：[13,1,1,2,2,19,1,1,0,0,0,2]
-            // 02，02，19 就是版本号，取第4到第6位即可。
-            const version = versionData[3] + '.' + versionData[4] + '.' + versionData[5];
-            console.log('获取到了固件版本号', version);
-            const version_array =  MATATABOT_LATEST_FIRMWARE_VERSION.split(".");
-            const latest_version = (parseInt(version_array[0], 10) << 16) + (parseInt(version_array[1], 10) << 8) + parseInt(version_array[2], 10);
-            const current_version = (versionData[3] << 16) + (versionData[4] << 8) + versionData[5];
-            if (latest_version > current_version) {
-                matata.showFirmwareModal(this.device, version);
-            }
-        }
+        this.commandSyncFlag.getVersionFlag = true;
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > 1000) {
+                    console.log('checkVersion timeout!');
+                    this.commandSyncFlag.getVersionFlag = false;
+                    matata.showFirmwareModal(this.device, "unknown");
+                    this.disconnect();
+                    clearInterval(interval);
+                    resolve(false);
+                } else if (this.commandSyncFlag.getVersionFlag === false) {
+                    const version = this.version[0] + '.' + this.version[1] + '.' + this.version[2];
+                    const version_array =  MATATABOT_LATEST_FIRMWARE_VERSION.split(".");
+                    const latest_version = (parseInt(version_array[0], 10) << 16) + (parseInt(version_array[1], 10) << 8) + parseInt(version_array[2], 10);
+                    const current_version = (this.version[0] << 16) + (this.version[1] << 8) + this.version[2];
+                    console.log(latest_version);
+                    console.log(current_version);
+                    if (latest_version > current_version) {
+                        matata.showFirmwareModal(this.device, version);
+                        this.disconnect();
+                    }
+                    clearInterval(interval);
+                    resolve(true);
+                }
+                count += 10;
+            }, 10);
+        });
     }
 
     /**
@@ -524,16 +569,9 @@ class MatataBot {
      */
     _onConnect () {
         this._ble.startNotifications(BLEINFO.service, BLEINFO.rxChar, this._onMessage);
-        // 切换固件协议，如果超时无返回，提示版本不匹配，需要升级。
-        // 如果成功返回，通过系统信息获取命令（0x01)，获取系统版本号，该版本号与指定的版本进行比较，
-        // 如果固件是更旧的版本，提示升级。版本号格式示例：
         this.setNewProtocol((state) => {
-            console.log('set new protocol state', state);
-            if(state) {
-                this.checkVersion();
-            } else {
-                // 设置协议超时了，需要提示固件升级
-                matata.showFirmwareModal(this.device, 'unknown');
+            if (state) {
+                this.checkVersion()
             }
         });
     }
