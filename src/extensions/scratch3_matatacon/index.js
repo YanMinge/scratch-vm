@@ -1682,7 +1682,7 @@ class Scratch3MatataConBlocks {
                         default: 'message [MESSAGE_INDEX] received?',
                         description: 'Whether the message is received'
                     }),
-                    blockType: BlockType.COMMAND,
+                    blockType: BlockType.BOOLEAN,
                     arguments: {
                         MESSAGE_INDEX: {
                             type: ArgumentType.STRING,
@@ -1765,6 +1765,15 @@ class Scratch3MatataConBlocks {
                         description: 'Whether detect brightness ?'
                     }),
                     blockType: BlockType.BOOLEAN
+                },
+                {
+                    opcode: 'getMessage',
+                    text: formatMessage({
+                        id: 'matatacon.getMessage',
+                        default: 'message',
+                        description: 'get message'
+                    }),
+                    blockType: BlockType.REPORTER
                 },
                 {
                     opcode: 'getPitchAngle',
@@ -2487,6 +2496,38 @@ class Scratch3MatataConBlocks {
                 } else if (this._peripheral.commandSyncFlag.brightnessDetectFlag === false) {
                     clearInterval(interval);
                     resolve(this._peripheral.brightness_flag);
+                }
+                count += 10;
+            }, 10);
+        });
+    }
+
+    getMessage() {
+       const getMessageData = new Array();
+        getMessageData.push(BLECommand.CMD_SENSOR_DETECT);
+        getMessageData.push(SensorDetectCommand.IR_MESSAGE);
+        getMessageData.push(0x02); // wait IR message
+        this._peripheral.wait_ir_message = 0;
+        this._peripheral.commandSyncFlag.waitIRmessageFlag = true;
+        this._peripheral.send(this._peripheral.packCommand(getMessageData));
+        return new Promise(resolve => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count > (2000)) {
+                    console.log('getMessageData timeout!');
+                    clearInterval(interval);
+                    this._peripheral.commandSyncFlag.waitIRmessageFlag = false;
+                    this._peripheral.wait_ir_message = 0;
+                    resolve(0);
+                } else if (this._peripheral.commandSyncFlag.waitIRmessageFlag === false) {
+                    console.log('getMessageData success!');
+                    clearInterval(interval);
+                    if (this._peripheral.wait_ir_message == 0xff) {
+                        resolve(0);
+                    } else {
+                        resolve(this._peripheral.wait_ir_message);
+                    }
+
                 }
                 count += 10;
             }, 10);
