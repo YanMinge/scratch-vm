@@ -1623,7 +1623,7 @@ class Scratch3MatataConBlocks {
                     opcode: 'lightRingLedSingleSet4',
                     text: formatMessage({
                         id: 'matatacon.lightRingLedSingleSet4',
-                        default: 'set led ring light [PANEL]',
+                        default: 'set LED ring light [PANEL]',
                         description: 'set led lamp panel'
                     }),
                     blockType: BlockType.COMMAND,
