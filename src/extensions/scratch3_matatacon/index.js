@@ -2096,14 +2096,17 @@ class Scratch3MatataConBlocks {
 
     lightRingLedSingleSet3 (args) {
         const lightRingLedSingleSet3Data = new Array();
-        const led_index = args.LED_INDEX % 12;
         const red = MathUtil.clamp(args.RED_VALUE, 0, 255);
         const green = MathUtil.clamp(args.GREEN_VALUE, 0, 255);
         const blue = MathUtil.clamp(args.BLUE_VALUE, 0, 255);
         lightRingLedSingleSet3Data.push(BLECommand.CMD_LIGHT_RING);
-        if (led_index === 0) {
+        if (args.LED_INDEX == 0) {
             lightRingLedSingleSet3Data.push(LightRingCommand.ALL_LIGHT_RGB_COLOR);
         } else {
+            let led_index = args.LED_INDEX % 12;
+            if (led_index < 0) {
+                led_index = led_index + 12;
+            }
             lightRingLedSingleSet3Data.push(LightRingCommand.SINGLE_LIGHT_RGB_COLOR);
             lightRingLedSingleSet3Data.push(led_index);
         }

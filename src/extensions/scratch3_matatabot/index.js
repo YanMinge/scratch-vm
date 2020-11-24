@@ -3008,7 +3008,7 @@ class Scratch3MatataBotBlocks {
         }
 
         if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV1) {
-            brightness_level = 1;
+            brightness_level = 2;
         } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV2) {
             brightness_level = 8;
         } else if (args.BRIGHTNESS_LEVEL === BrightnessLevelMenu.LEV3) {
@@ -3024,9 +3024,9 @@ class Scratch3MatataBotBlocks {
         }
         eyeLedSingleSet1Data.push(BLECommand.CMD_EYE_LED);
         eyeLedSingleSet1Data.push(led_index);
-        eyeLedSingleSet1Data.push((r_value * brightness_level) / 216);
-        eyeLedSingleSet1Data.push((g_value * brightness_level) / 216);
-        eyeLedSingleSet1Data.push((b_value * brightness_level) / 216);
+        eyeLedSingleSet1Data.push(Math.round((r_value * brightness_level) / 216));
+        eyeLedSingleSet1Data.push(Math.round((g_value * brightness_level) / 216));
+        eyeLedSingleSet1Data.push(Math.round((b_value * brightness_level) / 216));
         this._peripheral.commandSyncFlag.eyeLedSingleSet1Flag = true;
         this._peripheral.send(this._peripheral.packCommand(eyeLedSingleSet1Data));
         return new Promise(resolve => {
